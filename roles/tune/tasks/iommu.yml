@@ -1,6 +1,13 @@
 ---
 # IOMMU configuration tasks for the tune role
 
+- name: Enable IOMMU
+  ansible.builtin.debug:
+    msg: "Need to enable IOMMU here"
+  when:
+    - ansible_local.tuned.iommu_is_supported
+    - not ansible_local.tuned.iommu_is_supported
+
 
 #!/bin/bash
 #
@@ -10,6 +17,7 @@
 # To run it:
 # curl -s http://cobbler/cobbler/pub/enable_iommu.sh | bash -s
 #
+
 
 
 # RUN_GRUB_MKCFG=0

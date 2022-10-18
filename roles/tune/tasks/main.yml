@@ -1,6 +1,14 @@
 ---
 # tasks file for the tune role
 
+- name: Install ansible facts for ipaclient
+  ansible.builtin.import_tasks: facts.yml
+  tags:
+    - tune
+    - tune_tuned
+    - tune_network
+    - tune_iommu
+
 - name: Include tuned.yml
   #ansible.builtin.include_tasks: 'configure_{{ ansible_os_family|lower }}.yml'
   ansible.builtin.include_tasks:
