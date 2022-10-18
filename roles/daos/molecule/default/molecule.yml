@@ -15,7 +15,7 @@ driver:
   name: podman
 
 platforms:
-  - name: "daos-${image:-quay.io/maodevops/almalinux8-systemd}-${tag:-latest}${TOX_ENVNAME}"
+  - name: "daos-${image:-almalinux8-systemd}-${tag:-latest}${TOX_ENVNAME}"
     image: "${namespace:-quay.io/maodevops/}/${image:-almalinux8-systemd}:${tag:-latest}"
     command: /sbin/init
     tmpfs:
