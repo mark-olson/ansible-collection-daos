@@ -5,7 +5,7 @@
   ansible.builtin.debug:
     msg: "Need to enable IOMMU here"
   when: ansible_local.tuned.iommu_is_supported and
-    not ansible_local.tuned.iommu_is_supported
+    not ansible_local.tuned.iommu_is_enabled
 
 
 #!/bin/bash
