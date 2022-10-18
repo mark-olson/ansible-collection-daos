@@ -1,0 +1,7 @@
+---
+# Ubuntu installation tasks for daos
+
+- name: Install dependent packages
+  ansible.builtin.package:
+    name: '{{ daos_dep_pkgs }}'
+    state: present

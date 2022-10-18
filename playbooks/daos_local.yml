@@ -1,0 +1,22 @@
+---
+# playbook: daos_local.yml
+# run: ansible-playbook daos_local.yml --extra-vars="daos_roles=['admin','server','client']"
+
+- name: Install DAOS
+  hosts: localhost
+  gather_facts: yes
+
+  collections:
+    - mark_olson.daos
+
+  roles:
+    - role: tune
+      tags:
+        - tune
+        - tune_tuned
+        - tune_network
+    - role: daos
+      tags:
+        - daos
+        - daos_install
+        - daos_configure

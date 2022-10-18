@@ -1,0 +1,21 @@
+---
+# RedHat installation tasks for daos
+
+- name: Create repo file
+  ansible.builtin.template:
+    src: "repofiles/daos.repo.{{ ansible_pkg_mgr }}.j2"
+    dest: '{{ daos_repo_files_dir }}/daos.repo'
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install dependent packages
+  ansible.builtin.package:
+    name: '{{ daos_dep_pkgs }}'
+    state: present
+
+- name: Install DAOS packages
+  ansible.builtin.package:
+    name: '{{ daos_pkgs[item] | default([]) }}'
+    state: present
+  loop: '{{ daos_roles }}'

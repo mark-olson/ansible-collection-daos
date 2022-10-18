@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  remote_user: root
+  gather_facts: true
+
+  vars:
+    daos_roles:
+      - server
+      - client
+      - admin
+
+  tasks:
+    - name: "Include daos role"
+      ansible.builtin.include_role:
+        name: "daos"
