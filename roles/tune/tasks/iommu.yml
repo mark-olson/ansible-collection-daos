@@ -1,11 +1,46 @@
 ---
 # IOMMU configuration tasks for the tune role
 
-- name: Enable IOMMU
+- name: Register IOMMU support
+  ansible.builtin.shell: |
+    if dmesg | grep -q -i 'DMAR: IOMMU\|DMAR-IR.*IOMMU\|iommu group'; then
+      echo "true"
+    else
+      echo "false"
+    fi
+  changed_when: false
+  register: tune_iommu_support
+
+- name: Register IOMMU grub enabled
+  ansible.builtin.shell: |
+    if grep /etc/default/grub -q -i 'intel_iommu=on'; then
+      echo "true"
+    else
+      echo "false"
+    fi
+  changed_when: false
+  register: tune_iommu_grub_enabled
+
+- name: Insert intel_iommu=on in /etc/default/grub if missing
+  lineinfile:
+    backrefs: true
+    path: /etc/default/grub
+    regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
+    line: '\1 intel_iommu=on"'
+  when: tune_iommu_support.stdout | bool
+    not (tune_iommu_grub_enabled.stdout | bool)
+  register: tune_iommu_grub
+
+- name: Run grub2-mkconfig
+  ansible.builtin.shell: grub2-mkconfig --output=/boot/grub2/grub.cfg
+  when: tune_iommu_grub.changed
+  register: tune_grub
+
+- name: Show reboot required message
   ansible.builtin.debug:
-    msg: "Need to enable IOMMU here"
-  when: ansible_local.tuned.iommu_is_supported and
-    not ansible_local.tuned.iommu_is_enabled
+    msg: "/etc/default/grub has changed. A reboot is required!"
+  when: tune_grub.changed
+
 
 
 #!/bin/bash

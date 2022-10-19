@@ -1,13 +1,13 @@
 ---
 # tasks file for the tune role
 
-- name: Install ansible facts for ipaclient
-  ansible.builtin.import_tasks: facts.yml
-  tags:
-    - tune
-    - tune_tuned
-    - tune_network
-    - tune_iommu
+# - name: Install ansible facts for tune role
+#   ansible.builtin.import_tasks: facts.yml
+#   tags:
+#     - tune
+#     - tune_tuned
+#     - tune_network
+#     - tune_iommu
 
 - name: Include tuned.yml
   #ansible.builtin.include_tasks: 'configure_{{ ansible_os_family|lower }}.yml'
@@ -28,6 +28,10 @@
       tags:
         - tune
         - tune_network
+  when:
+    - ansible_connection != "docker"
+    - ansible_connection != "podman"
+    - ansible_connection != "container"
   tags:
     - tune
     - tune_network
@@ -39,7 +43,11 @@
       tags:
         - tune
         - tune_iommu
-  when: tune_iommu_enable | default(false) | bool
+  when:
+    - tune_iommu_enable | default(false) | bool
+    - ansible_connection != "docker"
+    - ansible_connection != "podman"
+    - ansible_connection != "container"
   tags:
     - tune
     - tune_iommu

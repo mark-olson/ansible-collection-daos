@@ -21,16 +21,32 @@
     state: started
     enabled: yes
 
-- name: Register active profile
-  ansible.builtin.shell:
-    cmd: "tuned-adm active | sed 's/Current active profile: //'"
-  register: tune_tuned_active_profile
-  changed_when: false
+# - name: Register active profile
+#   ansible.builtin.shell:
+#     cmd: "tuned-adm active | sed 's/Current active profile: //'"
+#   register: tune_tuned_active_profile
+#   changed_when: false
 
-- name: Register active profile
+- name: Install tuned packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - tuned
+    - tuned-utils
+
+- name: Stat /etc/tuned/active_profile
+  ansible.builtin.stat:
+    path: /etc/tuned/active_profile
+  register: tune_tuned_active_profile_file
+
+- name: Get active profile
   ansible.builtin.slurp:
     src: /etc/tuned/active_profile
-  register: tune_tuned_active_profile_file
+  register: tune_tuned_active_profile
+  when:
+    - tune_tuned_active_profile_file.stat is defined
+    - tune_tuned_active_profile_file.stat.exists
   changed_when: false
 
 - name: Register recommended profile
@@ -41,7 +57,7 @@
 
 - name: Set profile facts
   set_fact:
-    tune_tuned_active_profile: "{{ tune_tuned_active_profile_file.content | b64decode | trim }}"
+    tune_tuned_active_profile: "{{ tune_tuned_active_profile.content | b64decode | trim }}"
     tune_tuned_recommended_profile: "{{ tune_tuned_recommended_profile_cmd.stdout | d('') }}"
 
 - name: Show current active profile

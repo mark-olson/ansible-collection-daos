@@ -1,6 +1,6 @@
 ---
 #
-# custom facts for tuned role
+# custom facts for tune role
 #
 
 - name: Create facts directory
@@ -11,21 +11,16 @@
     group: root
     mode: '0755'
 
-- name: Stat /etc/ansible/facts.d/tuned.fact
-  stat:
-    path: /etc/ansible/facts.d/tuned.fact
-  register: tuned_fact
-
-- name: Copy tuned facts script
+- name: Create tune facts script
   template:
-    src: 'etc/ansible/facts.d/tuned.fact.j2'
-    dest: '/etc/ansible/facts.d/tuned.fact'
+    src: 'etc/ansible/facts.d/tune.fact.j2'
+    dest: '/etc/ansible/facts.d/tune.fact'
     owner: root
     group: root
     mode: '0755'
-  register: tuned_fact_script
+  register: tune_fact_script
 
 - name: Reload facts
   setup:
     filter: ansible_local
-  when: tuned_fact_script.changed  # noqa 503
+  when: tune_fact_script.changed  # noqa 503

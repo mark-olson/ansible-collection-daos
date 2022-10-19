@@ -4,6 +4,6 @@
   gather_facts: true
 
   tasks:
-    - name: "Include tuned"
+    - name: "Include tune role"
       ansible.builtin.include_role:
-        name: "tuned"
+        name: "tune"
