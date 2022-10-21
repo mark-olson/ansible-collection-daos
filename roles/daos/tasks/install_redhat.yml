@@ -1,6 +1,11 @@
 ---
 # RedHat installation tasks for daos
 
+- name: Import epel-release GPG key
+  ansible.builtin.rpm_key:
+    key: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}'
+    state: present
+
 - name: Install epel-release from RPMs
   ansible.builtin.dnf:
     name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
