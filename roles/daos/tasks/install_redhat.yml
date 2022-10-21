@@ -1,9 +1,15 @@
 ---
 # RedHat installation tasks for daos
 
+- name: Install epel-release from RPMs
+  ansible.builtin.dnf:
+    name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
+    state: present
+  when:
+
 - name: Create repo file
   ansible.builtin.template:
-    src: "repofiles/daos.repo.{{ ansible_pkg_mgr }}.j2"
+    src: 'repofiles/daos.repo.{{ ansible_pkg_mgr }}.j2'
     dest: '{{ daos_repo_files_dir }}/daos.repo'
     owner: root
     group: root

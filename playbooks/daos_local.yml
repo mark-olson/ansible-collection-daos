@@ -1,5 +1,7 @@
 ---
 # playbook: daos_local.yml
+# description: Installs DAOS on localhost.
+#              This playbook was intended to be run by a startup/user_data script.
 # run: ansible-playbook daos_local.yml --extra-vars="daos_roles=['admin','server','client']"
 
 - name: Install DAOS
