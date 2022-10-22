@@ -17,7 +17,7 @@
 #
 #!/bin/bash
 
-ACD_VENV_DIR="/usr/local/ansible-collection-daos/venv"
+ACD_VENV_DIR="${ACD_VENV_DIR:-/usr/local/ansible-collection-daos/venv}"
 
 # BEGIN: Logging variables and functions
 declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2   [ERROR]=3 [FATAL]=4 [OFF]=5)
