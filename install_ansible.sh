@@ -14,11 +14,10 @@
 # limitations under the License.
 #
 # This script will ensure that Ansible is installed.
-# Only supports RHEL and EL for now.
 #
 #!/bin/bash
 
-ACD_DIR=/usr/local/ansible-collection-daos
+ACD_VENV_DIR="/usr/local/ansible-collection-daos/venv"
 
 # BEGIN: Logging variables and functions
 declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2   [ERROR]=3 [FATAL]=4 [OFF]=5)
@@ -77,14 +76,14 @@ install_pkgs() {
 
 activate_venv() {
   if [[ -z $VIRTUAL_ENV ]]; then
-    source "${ACD_DIR}/bin/activate"
+    source "${ACD_VENV_DIR}/bin/activate"
   fi
 }
 
 create_venv() {
-  log.info "Creating python virtualenv in ${ACD_DIR}"
-  mkdir -p "${ACD_DIR}"
-  python3 -m venv "${ACD_DIR}/"
+  log.info "Creating python virtualenv in ${ACD_VENV_DIR}"
+  mkdir -p "${ACD_VENV_DIR}"
+  python3 -m venv "${ACD_VENV_DIR}"
   activate_venv
   log.info "Upgrading pip"
   pip install --upgrade pip
@@ -108,7 +107,7 @@ show_versions() {
 }
 
 main() {
-  if [[ ! -d "${ACD_DIR}" ]]; then
+  if [[ ! -d "${ACD_VENV_DIR}" ]]; then
     install_pkgs
     create_venv
     install_ansible
