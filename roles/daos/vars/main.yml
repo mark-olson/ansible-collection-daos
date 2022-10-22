@@ -46,7 +46,6 @@ _daos_dep_pkgs:
     - epel-release
     - python3
     - python3-pip
-    - tuned
     - wget
     - ncdu
   fedora_36:
@@ -55,27 +54,24 @@ _daos_dep_pkgs:
   amazon_2:
     - pciutils
   redhat_8:
-    - epel-release
-    - NetworkManager
+    - clustershell
     - nvme-cli
     - pciutils
+    - pdsh
+    - python39
     - sudo
-    - tuned
+    - vim
     - which
-    - python3
-    - python3-pip
   suse:
     - curl
     - nvme-cli
     - pciutils
     - sudo
-    - tuned
     - vim
     - wget
     - which
   ubuntu:
     - sudo
-    - tuned
     - nvme-cli
     - pciutils
     - python3
