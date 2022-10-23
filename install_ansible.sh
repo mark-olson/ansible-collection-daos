@@ -55,14 +55,14 @@ pkg_mgr[rocky]=dnf
 pkg_mgr[ubuntu]=apt-get
 
 declare -A pkgs;
-pkgs[almalinux]="curl wget git python39"
+pkgs[almalinux]="curl wget git python3 python3-pip"
 pkgs[amzn]="curl wget git python3 python3-pip"
 pkgs[centos]="curl wget git python3 python3-pip"
 pkgs[debian]="curl wget git python3 python3-pip"
 pkgs[fedora]="curl wget git python3 python3-pip"
 pkgs[opensuse-leap]="curl wget git python3 python3-pip"
-pkgs[rhel]="curl wget git python39"
-pkgs[rocky]="curl wget git python39"
+pkgs[rhel]="curl wget git python3 python3-pip"
+pkgs[rocky]="curl wget git python3 python3-pip"
 pkgs[ubuntu]="curl wget git python3 python3-pip"
 
 install_pkgs() {
