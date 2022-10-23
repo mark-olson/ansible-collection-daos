@@ -83,10 +83,10 @@ activate_venv() {
 create_venv() {
   log.info "Creating python virtualenv in ${ACD_VENV_DIR}"
   mkdir -p "${ACD_VENV_DIR}"
-  python3 -m venv "${ACD_VENV_DIR}"
+  python3 -m venv --copies --upgrade "${ACD_VENV_DIR}"
   activate_venv
   log.info "Upgrading pip"
-  pip install --upgrade pip
+  pip install --upgrade --no-input pip -qqq pip
   deactivate
 }
 
