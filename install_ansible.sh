@@ -15,9 +15,10 @@
 #
 # This script will ensure that Ansible is installed.
 #
-#!/bin/bash
 
 ACD_VENV_DIR="${ACD_VENV_DIR:-/opt/ansible-collection-daos/venv}"
+
+source /etc/os-release
 
 # BEGIN: Logging variables and functions
 declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2   [ERROR]=3 [FATAL]=4 [OFF]=5)
@@ -41,8 +42,6 @@ log.error() { log "${1}" "ERROR" ; }
 log.fatal() { log "${1}" "FATAL" ; }
 # END: Logging variables and functions
 
-source /etc/os-release
-
 declare -A pkg_mgrs;
 pkg_mgrs[almalinux]=dnf
 pkg_mgrs[amzn]=yum
@@ -54,17 +53,17 @@ pkg_mgrs[rhel]=dnf
 pkg_mgrs[rocky]=dnf
 pkg_mgrs[ubuntu]=apt-get
 
-pkg_mgr="${pkg_mgr[$ID]}"
+pkg_mgr="${pkg_mgrs[$ID]}"
 
 declare -A pkg_list;
-pkg_list[almalinux]="curl wget git python39"
+pkg_list[almalinux]="curl wget git python3 python3-pip"
 pkg_list[amzn]="curl wget git python3 python3-pip"
 pkg_list[centos]="curl wget git python3 python3-pip"
 pkg_list[debian]="curl wget git python3 python3-pip"
 pkg_list[fedora]="curl wget git python3 python3-pip"
 pkg_list[opensuse-leap]="curl wget git python3 python3-pip"
-pkg_list[rhel]="curl wget git python39"
-pkg_list[rocky]="curl wget git python39"
+pkg_list[rhel]="curl wget git python3 python3-pip"
+pkg_list[rocky]="curl wget git python3 python3-pip"
 pkg_list[ubuntu]="curl wget git python3 python3-pip"
 
 pkgs="${pkg_list[$ID]}"
@@ -122,6 +121,7 @@ main() {
     install_ansible
   fi
   show_versions
+  log.info "DONE!"
 }
 
 main
