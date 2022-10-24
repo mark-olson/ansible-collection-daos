@@ -43,7 +43,6 @@ log.fatal() { log "${1}" "FATAL" ; }
 
 source /etc/os-release
 
-<<<<<<< HEAD
 declare -A pkg_mgrs;
 pkg_mgrs[almalinux]=dnf
 pkg_mgrs[amzn]=yum
@@ -69,29 +68,6 @@ pkg_list[rocky]="curl wget git python39"
 pkg_list[ubuntu]="curl wget git python3 python3-pip"
 
 pkgs="${pkg_list[$ID]}"
-=======
-declare -A pkg_mgr;
-pkg_mgr[almalinux]=dnf
-pkg_mgr[amzn]=yum
-pkg_mgr[centos]=yum
-pkg_mgr[debian]=apt-get
-pkg_mgr[fedora]=dnf
-pkg_mgr[opensuse-leap]=zypper
-pkg_mgr[rhel]=dnf
-pkg_mgr[rocky]=dnf
-pkg_mgr[ubuntu]=apt-get
-
-declare -A pkgs;
-pkgs[almalinux]="curl wget git python3 python3-pip"
-pkgs[amzn]="curl wget git python3 python3-pip"
-pkgs[centos]="curl wget git python3 python3-pip"
-pkgs[debian]="curl wget git python3 python3-pip"
-pkgs[fedora]="curl wget git python3 python3-pip"
-pkgs[opensuse-leap]="curl wget git python3 python3-pip"
-pkgs[rhel]="curl wget git python3 python3-pip"
-pkgs[rocky]="curl wget git python3 python3-pip"
-pkgs[ubuntu]="curl wget git python3 python3-pip"
->>>>>>> 72fa7ee84931247a77053f63dce93b0c3c3ee591
 
 install_pkgs() {
   log.info "Installing packages"
