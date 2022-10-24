@@ -7,6 +7,9 @@
     - daos
     - daos_assert
     - daos_install
+    - daos_certs
+    - daos_config
+    - daos_admin
 
 - name: Include distro family specific install.yml
   ansible.builtin.include_tasks: '{{ daos_install_task_file }}'
@@ -15,11 +18,40 @@
       tags:
         - daos
         - daos_install
+  tags:
+    - daos
+    - daos_install
 
-# - name: Include configure tasks
-#   ansible.builtin.include_tasks: configure.yml
+# - name: Include certificate deployment tasks
+#   ansible.builtin.include_tasks: certs.yml
 #   args:
 #     apply:
 #       tags:
 #         - daos
-#         - daos_configure
+#         - daos_certs
+#   tags:
+#     - daos
+#     - daos_certs
+#   when: daos_deploy_certs
+
+- name: Include config tasks
+  ansible.builtin.include_tasks: config.yml
+  args:
+    apply:
+      tags:
+        - daos
+        - daos_config
+  tags:
+    - daos
+    - daos_config
+
+- name: Include admin tasks
+  ansible.builtin.include_tasks: admin.yml
+  args:
+    apply:
+      tags:
+        - daos
+        - daos_admin
+  tags:
+    - daos
+    - daos_admin

@@ -13,7 +13,7 @@
 
 - name: Register IOMMU grub enabled
   ansible.builtin.shell: |
-    if grep /etc/default/grub -q -i 'intel_iommu=on'; then
+    if grep -q -i 'intel_iommu=on' /etc/default/grub; then
       echo "true"
     else
       echo "false"
@@ -21,14 +21,14 @@
   changed_when: false
   register: tune_iommu_grub_enabled
 
-- name: Insert intel_iommu=on in /etc/default/grub if missing
-  lineinfile:
+- name: 'Insert intel_iommu=on in /etc/default/grub if missing'
+  ansible.builtin.lineinfile:
     backrefs: true
     path: /etc/default/grub
-    regexp: "^(GRUB_CMDLINE_LINUX=\".*)\"$"
+    regexp: '^(GRUB_CMDLINE_LINUX_DEFAULT=".*)"$'
     line: '\1 intel_iommu=on"'
-  when: tune_iommu_support.stdout | bool
-    not (tune_iommu_grub_enabled.stdout | bool)
+  when: tune_iommu_support.stdout | default(false) | bool
+    and not (tune_iommu_grub_enabled.stdout | bool)
   register: tune_iommu_grub
 
 - name: Run grub2-mkconfig
@@ -40,92 +40,3 @@
   ansible.builtin.debug:
     msg: "/etc/default/grub has changed. A reboot is required!"
   when: tune_grub.changed
-
-
-
-#!/bin/bash
-#
-# This script enables IOMMU
-# See https://wiki.hpdd.intel.com/pages/viewpage.action?spaceKey=DAOS&title=Enabling+IOMMU+Support+for+non-root+Ss
-#
-# To run it:
-# curl -s http://cobbler/cobbler/pub/enable_iommu.sh | bash -s
-#
-
-
-
-# RUN_GRUB_MKCFG=0
-
-# if [ ! -f /etc/default/grub.orig ]; then
-#   printf "Saving a copy of /etc/default/grub as /etc/default/grub.orig\n"
-#   cp /etc/default/grub /etc/default/grub.orig
-# fi
-
-# if ! grep -qs 'GRUB_CMDLINE_LINUX_DEFAULT' /etc/default/grub; then
-#   printf "Adding GRUB_CMDLINE_LINUX_DEFAULT=\"intel_iommu=on\" to /etc/default/grub\n"
-#   sed -i "/GRUB_CMDLINE_LINUX=.*/ a GRUB_CMDLINE_LINUX_DEFAULT=\"intel_iommu=on\"" /etc/default/grub
-#   RUN_GRUB_MKCFG=1
-# elif ! grep -qs 'GRUB_CMDLINE_LINUX_DEFAULT' /etc/default/grub | grep -qs "intel_iommu=on"; then
-#   printf "Adding \"intel_iommu=on\" to the GRUB_CMDLINE_LINUX_DEFAULT setting in /etc/default/grub\n"
-#   sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 intel_iommu=on"/g' /etc/default/grb
-#   RUN_GRUB_MKCFG=1
-# fi
-
-# if [[ $RUN_GRUB_MKCFG -eq 1 ]]; then
-#   printf "Running grub2-mkconfig\n"
-#   grub2-mkconfig --output=/boot/grub2/grub.cfg
-#   printf "\n\nThe server now requires a reboot!\n\n"
-# fi
-
-# printf "DONE!\n"
-
-# - name: Make sure that /etc/grub.d exists
-#   file:
-#     path: "/etc/grub.d"
-#     state: directory
-#     mode: "0755"
-
-# - name: Copy /etc/grub.d/40_custom
-#   template:
-#     src: etc/grub.d/40_custom.j2
-#     dest: /etc/grub.d/40_custom
-#     mode: "0755"
-#   notify: update grub menu
-
-# - name: Make sure that /etc/default exists
-#   file:
-#     path: "/etc/default"
-#     state: directory
-#     mode: "0755"
-
-# - name: Disable Grub OS probing
-#   lineinfile:
-#     path: /etc/default/grub
-#     regex: "^GRUB_DISABLE_OS_PROBER="
-#     line: "GRUB_DISABLE_OS_PROBER='true'"
-#     mode: "0755"
-#     create: yes
-#   notify: update grub menu
-
-# - name: Default to intel_iommu=on
-#   lineinfile:
-#     path: /etc/default/grub
-#     regex: "^GRUB_CMDLINE_LINUX_DEFAULT="
-#     line: "GRUB_CMDLINE_LINUX_DEFAULT='intel_iommu=on'"
-#     mode: "0755"
-#   notify: update grub menu
-
-# - name: check if grub.cfg is up to date
-#   command:
-#     argv:
-#       - /usr/local/sbin/check_grub_ok.sh
-#       - /etc/grub.d/40_custom
-#       - /boot/grub2/grub.cfg
-#   register: snapshot_host_grub_chk
-#   changed_when: '"Not subset" in snapshot_host_grub_chk.stdout'
-#   notify: update grub menu
-
-# - name: Check if running in container
-#   stat:
-#     path: /usr/sbin/grub2-mkconfig
-#   register: snapshot_host_gmkcfg

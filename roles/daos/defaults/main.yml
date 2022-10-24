@@ -2,7 +2,11 @@
 # defaults file for daos
 
 # Version of DAOS to install
-daos_version: 2.0.3 # 2.2.0 , 2.3.101
+daos_version: 2.2.0
+
+daos_major_version: "{{ daos_version.split('.')[0] }}"
+daos_minor_version: "{{ daos_version.split('.')[1] }}"
+daos_config_version: "{{ daos_major_version ~ '.' ~ daos_minor_version }}"
 
 # Required to be set in extra-vars, playbook or inventory
 # The term "roles" is overloaded here. In this context roles means "what is the
@@ -49,4 +53,82 @@ daos_workarounds:
       by adding and enabling the older 15.3 distro repos
     enabled: false
 
-daos_config_access_points: "{{ groups['daos_servers'] | join(',') }}"
+daos_access_points: ""
+daos_port: 10001
+
+daos_server_user: daos_server
+daos_agent_user: daos_agent
+
+# If true then the daos_certgen_script will be run and the certs will
+# be generated.
+daos_certgen: false
+daos_certgen_out_dir: /etc/daos/daosCA
+daos_certgen_script: "/usr/lib64/daos/certgen/gen_certificates.sh {{ daos_certgen_out_dir }}"
+
+daos_cert_ca_cert: /etc/daos/certs/daosCA.crt
+daos_cert_server_cert: /etc/daos/certs/server.crt
+daos_cert_server_key: /etc/daos/certs/server.key
+daos_cert_admin_cert: /etc/daos/certs/admin.crt
+daos_cert_admin_key: /etc/daos/certs/admin.key
+
+daos_transport_config_allow_insecure: true
+
+# Use a more friendly name for enabling secure transport
+daos_deploy_certs: "{{ not (daos_transport_config_allow_insecure | bool) }}"
+
+daos_transport_config_client_cert_dir: /etc/daos/certs/clients
+daos_transport_config_ca_cert: /etc/daos/certs/daosCA.crt
+daos_transport_config_server_cert: /etc/daos/certs/server.crt
+daos_transport_config_server_key: /etc/daos/certs/server.key
+
+daos_server_provider: "ofi+tcp;ofi_rxm"
+daos_server_disable_vfio: "true"
+daos_server_disable_vmd: "true"
+daos_server_enable_hotplug: "true"
+daos_server_crt_timeout: 60
+daos_server_nr_hugepages: 0
+daos_server_disable_hugepages: "false"
+daos_server_control_log_mask: "INFO"
+daos_server_log_dir: /var/daos
+daos_server_control_log_file: "{{ daos_server_log_dir }}/daos_server.log"
+daos_server_helper_log_file: "{{ daos_server_log_dir }}/daos_admin.log"
+daos_server_firmware_helper_log_file: "{{ daos_server_log_dir }}/daos_firmware.log"
+daos_server_telemetry_port: 9191
+
+daos_server_engines:
+  - targets: 2
+    nr_xs_helpers: 0
+    first_core: 0
+    bypass_health_chk: "true"
+    fabric_iface: "{{ ansible_default_ipv4.interface }}"
+    fabric_iface_port: 31316
+    log_mask: ERR
+    log_file: "{{ daos_server_log_dir }}/daos_engine.0.log"
+    env_vars:
+      - "FI_OFI_RXM_DEF_TCP_WAIT_OBJ=pollfd"
+      - "DTX_AGG_THD_CNT=16777216"
+      - "DTX_AGG_THD_AGE=700"
+    storage:
+      - scm_mount: /var/daos/ram
+        class: ram
+        scm_size: 100
+      - class: file
+        bdev_list: [/tmp/daos-bdev]
+        bdev_size: 20
+
+# daos_pools:
+#   - name: pool1
+#     size: 15GB
+#     tier_ratio: ""
+#     user: ""
+#     group: ""
+#     acls: []
+#     properties: []
+#     containers:
+#       - name: ""
+#         type: ""
+#         user: ""
+#         group: ""
+#         acls: []
+#         properties: []
+#         user_attributes: []

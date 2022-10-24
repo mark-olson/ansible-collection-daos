@@ -17,7 +17,7 @@
 #
 #!/bin/bash
 
-ACD_VENV_DIR="${ACD_VENV_DIR:-/usr/local/ansible-collection-daos/venv}"
+ACD_VENV_DIR="${ACD_VENV_DIR:-/opt/ansible-collection-daos/venv}"
 
 # BEGIN: Logging variables and functions
 declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2   [ERROR]=3 [FATAL]=4 [OFF]=5)
@@ -43,35 +43,43 @@ log.fatal() { log "${1}" "FATAL" ; }
 
 source /etc/os-release
 
-declare -A pkg_mgr;
-pkg_mgr[almalinux]=dnf
-pkg_mgr[amzn]=yum
-pkg_mgr[centos]=yum
-pkg_mgr[debian]=apt-get
-pkg_mgr[fedora]=dnf
-pkg_mgr[opensuse-leap]=zypper
-pkg_mgr[rhel]=dnf
-pkg_mgr[rocky]=dnf
-pkg_mgr[ubuntu]=apt-get
+declare -A pkg_mgrs;
+pkg_mgrs[almalinux]=dnf
+pkg_mgrs[amzn]=yum
+pkg_mgrs[centos]=yum
+pkg_mgrs[debian]=apt-get
+pkg_mgrs[fedora]=dnf
+pkg_mgrs[opensuse-leap]=zypper
+pkg_mgrs[rhel]=dnf
+pkg_mgrs[rocky]=dnf
+pkg_mgrs[ubuntu]=apt-get
 
-declare -A pkgs;
-pkgs[almalinux]="curl wget git python39"
-pkgs[amzn]="curl wget git python3 python3-pip"
-pkgs[centos]="curl wget git python3 python3-pip"
-pkgs[debian]="curl wget git python3 python3-pip"
-pkgs[fedora]="curl wget git python3 python3-pip"
-pkgs[opensuse-leap]="curl wget git python3 python3-pip"
-pkgs[rhel]="curl wget git python39"
-pkgs[rocky]="curl wget git python39"
-pkgs[ubuntu]="curl wget git python3 python3-pip"
+pkg_mgr="${pkg_mgr[$ID]}"
+
+declare -A pkg_list;
+pkg_list[almalinux]="curl wget git python39"
+pkg_list[amzn]="curl wget git python3 python3-pip"
+pkg_list[centos]="curl wget git python3 python3-pip"
+pkg_list[debian]="curl wget git python3 python3-pip"
+pkg_list[fedora]="curl wget git python3 python3-pip"
+pkg_list[opensuse-leap]="curl wget git python3 python3-pip"
+pkg_list[rhel]="curl wget git python39"
+pkg_list[rocky]="curl wget git python39"
+pkg_list[ubuntu]="curl wget git python3 python3-pip"
+
+pkgs="${pkg_list[$ID]}"
 
 install_pkgs() {
   log.info "Installing packages"
-  "${pkg_mgr[$ID]}" update
-  if [[ "${pkg_mgr[$ID]}" == "apt" ]]; then
-    "${pkg_mgr[$ID]}" -y upgrade
+  if [[ "${pkg_mgr}" == "apt" ]]; then
+    log.info "Running ${pkg_mgr} update and upgrade"
+    "${pkg_mgr}" update
+    "${pkg_mgr}" -y upgrade
+  else
+    log.info "Running ${pkg_mgr} update"
+    "${pkg_mgr}" update -y
   fi
-  "${pkg_mgr[$ID]}" install -y ${pkgs[$ID]}
+  "${pkg_mgr}" install -y ${pkgs}
 }
 
 activate_venv() {
@@ -94,6 +102,7 @@ install_ansible() {
   log.info "Installing Ansible"
   activate_venv
   pip install ansible
+  echo "export ANSIBLE_DEPRECATION_WARNINGS=True" >> "${ACD_VENV_DIR}/bin/activate"
 }
 
 show_versions() {

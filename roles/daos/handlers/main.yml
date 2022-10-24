@@ -1,2 +1,7 @@
 ---
 # handlers file for daos
+
+- name: restart daos_server service
+  ansible.builtin.service:
+    name: daos_server
+    state: restarted

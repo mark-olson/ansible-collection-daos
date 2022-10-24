@@ -1,0 +1,72 @@
+---
+# Certificate generation tasks for the daos role
+
+- name: Generate self signed certificates
+  ansible.builtin.command:
+  args:
+    cmd: /usr/lib64/daos/certgen/gen_certificates.sh /etc/daos
+    creates: /etc/daos/daosCA
+  when: daos_certgen | default(false) | bool
+
+- name: Create certs directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /etc/daos/certs
+    - /etc/daos/certs/clients
+
+- name: Copy daosCA self signed certs
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    remote_src: yes
+  loop:
+    - {
+        src: /etc/daos/daosCA/certs/daosCA.crt,
+        dest: "{{ daos_cert_ca_cert }}",
+        owner: root,
+        mode: '0644'
+      }
+    - {
+        src: /etc/daos/daosCA/certs/server.crt,
+        dest: "{{ daos_cert_server_cert }}",
+        owner: root,
+        mode: '0600'
+      }
+    - {
+        src: /etc/daos/daosCA/certs/server.key,
+        dest: "{{ daos_cert_server_key }}",
+        owner: root,
+        mode: '0600'
+      }
+    - {
+        src: /etc/daos/daosCA/certs/admin.crt,
+        dest: "{{ daos_cert_admin_cert }}",
+        owner: root,
+        mode: '0600'
+      }
+    - {
+        src: /etc/daos/daosCA/certs/admin.key,
+        dest: "{{ daos_cert_admin_key }}",
+        owner: root,
+        mode: '0600'
+      }
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Copy agent self signed certs [server]
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    remote_src: yes
+  loop:
+    - {
+        src: /etc/daos/daosCA/certs/daosCA.crt,
+        dest: "{{ daos_cert_ca_cert }}",
+        owner: root,
+        mode: '0644'
+      }

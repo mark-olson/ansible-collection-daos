@@ -17,6 +17,7 @@
         - tune
         - tune_tuned
         - tune_network
+        - tune_iommu
     - role: daos
       tags:
         - daos

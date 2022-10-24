@@ -1,5 +1,0 @@
----
-
-- name: Configure debug
-  debug:
-    msg: "Starting configure"

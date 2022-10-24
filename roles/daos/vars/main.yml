@@ -55,6 +55,7 @@ _daos_dep_pkgs:
     - pciutils
   redhat_8:
     - clustershell
+    - lsof
     - nvme-cli
     - pciutils
     - pdsh

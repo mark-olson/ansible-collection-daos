@@ -9,8 +9,18 @@
 #     - tune_network
 #     - tune_iommu
 
+- name: Include selinux.yml
+  ansible.builtin.include_tasks:
+    file: selinux.yml
+    apply:
+      tags:
+        - tune
+        - tune_selinux
+  tags:
+    - tune
+    - tune_selinux
+
 - name: Include tuned.yml
-  #ansible.builtin.include_tasks: 'configure_{{ ansible_os_family|lower }}.yml'
   ansible.builtin.include_tasks:
     file: tuned.yml
     apply:
