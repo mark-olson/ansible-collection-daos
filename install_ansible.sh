@@ -96,7 +96,7 @@ create_venv() {
   pip install --upgrade --no-input pip
 }
 
-install_ansible() {s
+install_ansible() {
   log.info "Installing Ansible"
   activate_venv
   pip install ansible
