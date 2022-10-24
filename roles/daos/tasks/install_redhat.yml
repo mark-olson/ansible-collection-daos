@@ -5,13 +5,19 @@
   ansible.builtin.rpm_key:
     key: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}'
     state: present
-  when: ansible_distribution|lower == "rhel"
+  when: ansible_distribution | lower == "redhat"
 
 - name: Install epel-release from RPMs
   ansible.builtin.dnf:
     name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
     state: present
-  when: ansible_distribution|lower == "rhel"
+  when: ansible_distribution | lower == "redhat"
+
+- name: Install epel-release from upstream
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  when: ansible_distribution | lower != "redhat"
 
 - name: Create repo file
   ansible.builtin.template:
