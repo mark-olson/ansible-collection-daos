@@ -78,7 +78,7 @@ _daos_dep_pkgs:
     - python3
     - python3-pip
 
-daos_dep_pkgs: '{{  _daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
+daos_dep_pkgs: '{{ _daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
   d(_daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_major_version] |
   d(_daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower] |
   d(_daos_dep_pkgs[ansible_os_family|lower ~"_"~ ansible_distribution_major_version] |

@@ -11,38 +11,14 @@
   register: daos_config_server_user
   changed_when: false
 
-- name: Set daos_server_user
-  ansible.builtin.set_fact:
-    daos_server_user: "{{ daos_config_server_user.stdout }}"
-    daos_server_group: "{{ daos_config_server_user.stdout }}"
-  changed_when: false
-
-- name: Create daos_server.yml file
-  ansible.builtin.template:
-    src: 'etc/daos/daos_server_{{ daos_config_version }}.yml.j2'
-    dest: '/etc/daos/daos_server.yml'
-    owner: root
-    group: root
-    mode: '0644'
+- name: Include server configuration tasks
+  ansible.builtin.include_tasks: config_server.yml
+  args:
+    apply:
+      tags:
+        - daos
+        - daos_config
+  tags:
+    - daos
+    - daos_config
   when: '"server" in daos_roles'
-  notify: restart daos_server service
-
-- name: Stat daos_server.service file
-  ansible.builtin.stat:
-    path: /usr/lib/systemd/system/daos_server.service
-  register: daos_server_service_file
-
-- name: Update user in daos_server.service file
-  ansible.builtin.lineinfile:
-    path: /usr/lib/systemd/system/daos_server.service
-    regexp: "^User="
-    line: "User={{ daos_server_user }}"
-
-- name: Update group in daos_server.service file
-  ansible.builtin.lineinfile:
-    path: /usr/lib/systemd/system/daos_server.service
-    regexp: "^Group="
-    line: "Group={{ daos_server_group }}"
-
-- name: Flush handlers
-  meta: flush_handlers

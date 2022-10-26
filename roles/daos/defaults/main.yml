@@ -53,7 +53,7 @@ daos_workarounds:
       by adding and enabling the older 15.3 distro repos
     enabled: false
 
-daos_access_points: ""
+daos_access_points: '["{{ ansible_default_ipv4.interface }}"]'
 daos_port: 10001
 
 daos_server_user: daos_server

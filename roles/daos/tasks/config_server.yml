@@ -1,0 +1,61 @@
+---
+
+# - name: Determine PCIe addresses for bdev_list
+#   ansible.builtin.shell: |
+#     daos_server dump-topology | grep -i nvme | awk '{print $1}' | uniq \
+#     | xargs | sed -e 's/^/"/' -e 's/$/"/' -e 's/ /","/g')
+#   register: daos_bdev_list
+
+# If iommu is not enabled we have to run the daos_server service as root
+- name: Determine daos_server user based on intel_iommu=on boot param
+  ansible.builtin.shell: |
+    if grep -i -q 'intel_iommu=on' /proc/cmdline; then
+      echo {{ daos_server_user | default('daos_server') }}
+    else
+      echo root
+    fi
+  register: daos_config_server_user
+  changed_when: false
+
+- name: Set daos_server_user
+  ansible.builtin.set_fact:
+    daos_server_user: "{{ daos_config_server_user.stdout }}"
+    daos_server_group: "{{ daos_config_server_user.stdout }}"
+  changed_when: false
+
+- name: Create daos_server.yml file
+  ansible.builtin.template:
+    src: 'etc/daos/daos_server_{{ daos_config_version }}.yml.j2'
+    dest: '/etc/daos/daos_server.yml'
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart daos_server service
+
+# - name: Stat daos_server.service file
+#   ansible.builtin.stat:
+#     path: /usr/lib/systemd/system/daos_server.service
+#   register: daos_server_service_file
+
+- name: Update user in daos_server.service file
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/daos_server.service
+    regexp: "^User="
+    line: "User={{ daos_server_user }}"
+  register: daos_server_service_user
+
+- name: Update group in daos_server.service file
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/daos_server.service
+    regexp: "^Group="
+    line: "Group={{ daos_server_group }}"
+  register: daos_server_service_group
+
+- name: Re-read systemd service files
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  when: daos_server_service_user.changed or
+    daos_server_service_group.changed
+
+- name: Flush handlers
+  meta: flush_handlers
