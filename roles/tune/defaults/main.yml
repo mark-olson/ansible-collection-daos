@@ -1,6 +1,9 @@
 ---
 # defaults file for the tune role
 
+# Allow the tune role to perform a reboot if necessary
+tune_allow_reboot: true
+
 #------------------------------------------------------------------------------
 # tuned settings
 #------------------------------------------------------------------------------
