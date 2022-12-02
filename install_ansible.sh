@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2022 Intel Corporation
+# Copyright 2022-2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #
 
 # DA is short for DAOS Ansible
-DA_VENV_DIR="${DA_VENV_DIR:-/opt/ansible-collection-daos/venv}"
+DA_VENV_DIR="${DA_VENV_DIR:-${HOME}/ansible-collection-daos/venv}"
 DA_INSTALL_COLL="${DA_INSTALL_COLL:-true}"
 DA_COLL_GIT_URL="${DA_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
