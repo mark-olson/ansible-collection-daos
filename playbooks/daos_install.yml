@@ -7,17 +7,24 @@
 - name: Install DAOS
   hosts: "{{ target | default('localhost') }}"
   gather_facts: yes
+  become: yes
 
   collections:
     - mark_olson.daos
 
   roles:
+    - role: epel
+      tags:
+        - epel
     - role: tune
       tags:
         - tune
         - tune_tuned
         - tune_network
         - tune_iommu
+    - role: reboot
+      tags:
+        - reboot
     - role: daos
       tags:
         - daos

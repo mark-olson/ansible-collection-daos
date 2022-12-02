@@ -1,23 +1,38 @@
 ---
 # vars file for daos
 
+daos_major_version: "{{ daos_version.split('.')[0] }}"
+daos_minor_version: "{{ daos_version.split('.')[1] }}"
+daos_config_version: "{{ daos_major_version ~ '.' ~ daos_minor_version }}"
+
+# DAOS packages to install depending on the value of daos_role
+daos_pkgs:
+  admin:
+    - "{{ daos_version is version('2.2', '<') | ternary('daos-server','daos-admin') }}"
+  client:
+    - daos-client
+  client-test:
+    - daos-client
+    - daos-client-tests
+  server:
+    - daos-server
+  server-test:
+    - daos-server
+    - daos-server-tests
+
 _daos_distro_is_supported:
   v1.2.0:
-    centos_7: True
+    centos_7: true
   v2.0.3:
-    centos_7: True
-    redhat_8: True
-    opensuse_leap_15.3: True
+    centos_7: true
+    redhat_8: true
+    opensuse_leap_15.3: true
     opensuse_leap_15.4: '{{ daos_workarounds["daos_11637"].enabled | d(False) | bool }}'
   v2.2.0:
-    redhat_8: True
-    opensuse_leap_15.3: True
+    centos_7: true
+    redhat_8: true
+    opensuse_leap_15.3: true
     opensuse_leap_15.4: '{{ daos_wa_daos_11637_enabled | d(False) | bool }}'
-  v2.3.101:
-    redhat_8: True
-    opensuse_leap_15.3: True
-    opensuse_leap_15.4: '{{ daos_wa_daos_11637_enabled | d(False) | bool }}'
-
 
 daos_distro_is_supported: '{{  _daos_distro_is_supported["v"~ daos_version][ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
   d(_daos_distro_is_supported["v"~ daos_version][ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_major_version] |
@@ -42,41 +57,59 @@ daos_install_task_file: '{{  _daos_install_task_file[ansible_distribution|replac
 
 _daos_dep_pkgs:
   centos_7:
-    - curl
-    - epel-release
-    - python3
-    - python3-pip
-    - wget
-    - ncdu
-  fedora_36:
+    - clustershell
+    - lsof
     - nvme-cli
     - pciutils
-  amazon_2:
+    - pdsh
+    - sudo
+    - vim
+    - which
+  fedora_36:
+    - clustershell
+    - lsof
+    - nvme-cli
     - pciutils
+    - pdsh
+    - sudo
+    - vim
+    - which
+  amazon_2:
+    - clustershell
+    - lsof
+    - nvme-cli
+    - pciutils
+    - pdsh
+    - sudo
+    - vim
+    - which
   redhat_8:
     - clustershell
     - lsof
     - nvme-cli
     - pciutils
     - pdsh
-    - python39
     - sudo
     - vim
     - which
   suse:
-    - curl
+    - clustershell
+    - lsof
     - nvme-cli
     - pciutils
+    - pdsh
     - sudo
     - vim
-    - wget
     - which
   ubuntu:
-    - sudo
+    - clustershell
+    - lsof
     - nvme-cli
     - pciutils
-    - python3
-    - python3-pip
+    - pdsh
+    - sudo
+    - vim
+    - which
 
 daos_dep_pkgs: '{{ _daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
   d(_daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_major_version] |

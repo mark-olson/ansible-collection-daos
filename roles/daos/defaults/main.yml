@@ -4,10 +4,6 @@
 # Version of DAOS to install
 daos_version: 2.2.0
 
-daos_major_version: "{{ daos_version.split('.')[0] }}"
-daos_minor_version: "{{ daos_version.split('.')[1] }}"
-daos_config_version: "{{ daos_major_version ~ '.' ~ daos_minor_version }}"
-
 # Required to be set in extra-vars, playbook or inventory
 # The term "roles" is overloaded here. In this context roles means "what is the
 # responsibility of the host within the DAOS cluster.
@@ -26,34 +22,20 @@ daos_repo_gpg_key_url: https://packages.daos.io/RPM-GPG-KEY
 daos_repo_enable_source: false
 daos_repo_enable_debug: false
 
-# DAOS packages to install depending on the value of daos_role
-daos_pkgs:
-  admin:
-    - "{{ daos_version is version('2.2', '<') | ternary('daos-server','daos-admin') }}"
-  client:
-    - daos-client
-  client-test:
-    - daos-client
-    - daos-client-tests
-  server:
-    - daos-server
-  server-test:
-    - daos-server
-    - daos-server-tests
-
 # Workarounds can be implemented for issues that
 # are waiting to be resolved either in new versions of DAOS or
 # in dependencies. This dictionary allows workarounds to be
 # defined and enabled/disabled.
 daos_workarounds:
-  # TODO: This work-around is not working! Leave disabled.
   daos_11637:
+    enabled: false
     description: |
       Allow DAOS to be installed on DAOS on openSUSE Leap 15.4
       by adding and enabling the older 15.3 distro repos
-    enabled: false
 
-daos_access_points: '["{{ ansible_default_ipv4.interface }}"]'
+daos_access_points: []
+  #- "{{ ansible_default_ipv4.address }}"
+
 daos_port: 10001
 
 daos_server_user: daos_server

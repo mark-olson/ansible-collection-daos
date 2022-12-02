@@ -16,7 +16,11 @@
 # This script will ensure that Ansible is installed.
 #
 
-ACD_VENV_DIR="${ACD_VENV_DIR:-/opt/ansible-collection-daos/venv}"
+# DA is short for DAOS Ansible
+DA_VENV_DIR="${DA_VENV_DIR:-/opt/ansible-collection-daos/venv}"
+DA_INSTALL_COLL="${DA_INSTALL_COLL:-true}"
+DA_COLL_GIT_URL="${DA_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
+PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
 
 source /etc/os-release
 
@@ -70,27 +74,29 @@ pkgs="${pkg_list[$ID]}"
 
 install_pkgs() {
   log.info "Installing packages"
-  if [[ "${pkg_mgr}" == "apt" ]]; then
-    log.info "Running ${pkg_mgr} update and upgrade"
-    "${pkg_mgr}" update
-    "${pkg_mgr}" -y upgrade
-  else
-    log.info "Running ${pkg_mgr} update"
-    "${pkg_mgr}" update -y
+  if [[ "${PKG_MGR_UPDATE}" == "true" ]]; then
+    if [[ "${pkg_mgr}" == "apt" ]]; then
+      log.info "Running ${pkg_mgr} update and upgrade"
+      "${pkg_mgr}" update
+      "${pkg_mgr}" -y upgrade
+    else
+      log.info "Running ${pkg_mgr} update"
+      "${pkg_mgr}" update -y
+    fi
   fi
   "${pkg_mgr}" install -y ${pkgs}
 }
 
 activate_venv() {
   if [[ -z $VIRTUAL_ENV ]]; then
-    source "${ACD_VENV_DIR}/bin/activate"
+    source "${DA_VENV_DIR}/bin/activate"
   fi
 }
 
 create_venv() {
-  log.info "Creating python virtualenv in ${ACD_VENV_DIR}"
-  mkdir -p "${ACD_VENV_DIR}"
-  python3 -m venv "${ACD_VENV_DIR}"
+  log.info "Creating python virtualenv in ${DA_VENV_DIR}"
+  mkdir -p "${DA_VENV_DIR}"
+  python3 -m venv "${DA_VENV_DIR}"
   activate_venv
   log.info "Upgrading pip"
   pip install --upgrade --no-input pip
@@ -100,7 +106,7 @@ install_ansible() {
   log.info "Installing Ansible"
   activate_venv
   pip install ansible
-  echo "export ANSIBLE_DEPRECATION_WARNINGS=True" >> "${ACD_VENV_DIR}/bin/activate"
+  echo "export ANSIBLE_DEPRECATION_WARNINGS=True" >> "${DA_VENV_DIR}/bin/activate"
 }
 
 show_versions() {
@@ -113,12 +119,31 @@ show_versions() {
   ansible --version
 }
 
+install_collection() {
+  local collection="ansible-collection-daos"
+
+  if [[ "${DA_INSTALL_COLL}" = "true" ]]; then
+    activate_venv
+
+    if ! ansible-galaxy collection list | grep -q "${collection}"; then
+      log.info "Installing Ansible Collection: ${collection}"
+      ansible-galaxy collection install \
+        --clear-response-cache \
+        --force-with-deps \
+        "${DA_COLL_GIT_URL}"
+    else
+      echo "Collection already installed: ${collection}"
+    fi
+  fi
+}
+
 main() {
-  if [[ ! -d "${ACD_VENV_DIR}" ]]; then
+  if [[ ! -d "${DA_VENV_DIR}" ]]; then
     install_pkgs
     create_venv
     install_ansible
   fi
+  install_collection
   show_versions
   log.info "DONE!"
 }

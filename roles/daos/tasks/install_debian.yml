@@ -1,10 +1,6 @@
 ---
 # debian installation tasks for daos
 
-- name: MSG
-  debug:
-    msg: "Install for {{ ansible_os_family }}"
-
 - name: Install dependent packages
   ansible.builtin.package:
     name: '{{ daos_dep_pkgs }}'

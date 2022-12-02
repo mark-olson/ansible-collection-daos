@@ -4,7 +4,7 @@
 ## DAOS server configuration file.
 ##
 
-access_points: {{ daos_access_points }}
+access_points: {{ daos_access_points | to_json }}
 port: {{ daos_port }}
 transport_config:
   allow_insecure: {{ daos_transport_config_allow_insecure | default(false) | bool | string | lower }}
