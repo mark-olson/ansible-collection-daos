@@ -14,10 +14,9 @@
 # limitations under the License.
 #
 
-# DA is short for DAOS Ansible
-DA_VENV_DIR="${DA_VENV_DIR:-${HOME}/ansible-collection-daos/venv}"
-DA_INSTALL_COLL="${DA_INSTALL_COLL:-true}"
-DA_COLL_GIT_URL="${DA_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
+ANS_VENV_DIR="${ANS_VENV_DIR:-${HOME}/ansible-daos/venv}"
+ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
+ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
 
 source /etc/os-release
@@ -87,14 +86,14 @@ install_pkgs() {
 
 activate_venv() {
   if [[ -z $VIRTUAL_ENV ]]; then
-    source "${DA_VENV_DIR}/bin/activate"
+    source "${ANS_VENV_DIR}/bin/activate"
   fi
 }
 
 create_venv() {
-  log.info "Creating python virtualenv in ${DA_VENV_DIR}"
-  mkdir -p "${DA_VENV_DIR}"
-  python3 -m venv "${DA_VENV_DIR}"
+  log.info "Creating python virtualenv in ${ANS_VENV_DIR}"
+  mkdir -p "${ANS_VENV_DIR}"
+  python3 -m venv "${ANS_VENV_DIR}"
   activate_venv
   log.info "Upgrading pip"
   pip install --upgrade --no-input pip
@@ -104,7 +103,7 @@ install_ansible() {
   log.info "Installing Ansible"
   activate_venv
   pip install ansible
-  echo "export ANSIBLE_DEPRECATION_WARNINGS=True" >> "${DA_VENV_DIR}/bin/activate"
+  echo "export ANSIBLE_DEPRECATION_WARNINGS=True" >> "${ANS_VENV_DIR}/bin/activate"
 }
 
 show_versions() {
@@ -120,7 +119,7 @@ show_versions() {
 install_collection() {
   local collection="ansible-collection-daos"
 
-  if [[ "${DA_INSTALL_COLL}" = "true" ]]; then
+  if [[ "${ANS_INSTALL_COLL}" = "true" ]]; then
     activate_venv
 
     if ! ansible-galaxy collection list | grep -q "${collection}"; then
@@ -128,7 +127,7 @@ install_collection() {
       ansible-galaxy collection install \
         --clear-response-cache \
         --force-with-deps \
-        "${DA_COLL_GIT_URL}"
+        "${ANS_COLL_GIT_URL}"
     else
       log.info "Collection already installed: ${collection}"
     fi
@@ -136,7 +135,7 @@ install_collection() {
 }
 
 main() {
-  if [[ ! -d "${DA_VENV_DIR}" ]]; then
+  if [[ ! -d "${ANS_VENV_DIR}" ]]; then
     install_pkgs
     create_venv
     install_ansible
