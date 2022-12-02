@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-ANS_VENV_DIR="${ANS_VENV_DIR:-${HOME}/ansible-daos/venv}"
+ANS_VENV_DIR="${ANS_VENV_DIR:-${HOME}/ansible-daos/.venv}"
 ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
 ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
