@@ -25,15 +25,15 @@ PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
 source /etc/os-release
 
 # BEGIN: Logging variables and functions
-declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2   [ERROR]=3 [FATAL]=4 [OFF]=5)
-declare -A LOG_COLORS=([DEBUG]=2 [INFO]=12 [WARN]=148 [ERROR]=9 [FATAL]=9 [OFF]=0)
+declare -A LOG_LEVELS=([DEBUG]=0 [INFO]=1  [WARN]=2 [ERROR]=3 [FATAL]=4 [OFF]=5)
+declare -A LOG_COLORS=([DEBUG]=2 [INFO]=12 [WARN]=3 [ERROR]=1 [FATAL]=9 [OFF]=0 [OTHER]=15)
 LOG_LEVEL=INFO
 
 log() {
   local msg="$1"
   local lvl=${2:-INFO}
   if [[ ${LOG_LEVELS[$LOG_LEVEL]} -le ${LOG_LEVELS[$lvl]} ]]; then
-    if [[ -t 1 ]]; then tput setaf ${LOG_COLORS[$lvl]}; fi
+    if [[ -t 1 ]]; then tput setaf "${LOG_COLORS[$lvl]}"; fi
     printf "[%-5s] %s\n" "$lvl" "${msg}" 1>&2
     if [[ -t 1 ]]; then tput sgr0; fi
   fi
@@ -132,7 +132,7 @@ install_collection() {
         --force-with-deps \
         "${DA_COLL_GIT_URL}"
     else
-      echo "Collection already installed: ${collection}"
+      log.info "Collection already installed: ${collection}"
     fi
   fi
 }
