@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# This script will ensure that Ansible is installed.
-#
 
 # DA is short for DAOS Ansible
 DA_VENV_DIR="${DA_VENV_DIR:-/opt/ansible-collection-daos/venv}"
