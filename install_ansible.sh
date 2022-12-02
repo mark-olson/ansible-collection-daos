@@ -18,6 +18,7 @@ ANS_VENV_DIR="${ANS_VENV_DIR:-${HOME}/ansible-daos/venv}"
 ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
 ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
+ANSIBLE_DEPRECATION_WARNINGS=False
 
 source /etc/os-release
 
@@ -117,12 +118,12 @@ show_versions() {
 }
 
 install_collection() {
-  local collection="ansible-collection-daos"
+  local collection="daos_stack.daos"
 
   if [[ "${ANS_INSTALL_COLL}" = "true" ]]; then
     activate_venv
 
-    if ! ansible-galaxy collection list | grep -q "${collection}"; then
+    if ! ansible-galaxy collection list | grep -v 'CryptographyDeprecationWarning' | grep -q "${collection}"; then
       log.info "Installing Ansible Collection: ${collection}"
       ansible-galaxy collection install \
         --clear-response-cache \
