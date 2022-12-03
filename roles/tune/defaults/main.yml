@@ -1,13 +1,6 @@
 ---
 # defaults file for the tune role
 
-# Allow the tune role to perform a reboot if necessary
-tune_allow_reboot: true
-
-#------------------------------------------------------------------------------
-# tuned settings
-#------------------------------------------------------------------------------
-
 tune_tuned_use_recommended_profile: false
 
 # Name of the tuned profile to apply
@@ -17,7 +10,7 @@ tune_tuned_use_recommended_profile: false
 # /etc/tuned/{{ tune_tuned_profile }}/tuned.conf
 # The contents of the using tuned.conf file will be generated
 # from the the tune_tuned_daos_profile dictionary.
-tune_tuned_profile: "daos-ibm"
+tune_tuned_profile: "daos"
 
 # If tune_tuned_profile starts with "daos" then use this dictionary
 # to generate a tuned.conf. Each 1st level dictionary key will be
@@ -33,24 +26,24 @@ tune_tuned_daos_profile:
     net.ipv4.tcp_wmem: 4096 16384 16777216
     # ========= ibm bare metal settings ===============
     ## Per CCE-80916-0: Set kernel.randomize_va_space: 2
-    # kernel.randomize_va_space=2
-    # net.ipv4.tcp_max_syn_backlog=65536
-    # net.ipv4.tcp_timestamps=0
-    # net.ipv4.tcp_sack=1
-    # net.core.netdev_max_backlog=250000
-    # net.core.rmem_max=16777216
-    # net.core.wmem_max=16777216
-    # net.core.rmem_default=16777216
-    # net.core.wmem_default=16777216
-    # net.core.optmem_max=16777216
-    # net.ipv4.tcp_rmem=4096 87380 16777216
-    # net.ipv4.tcp_wmem=4096 65536 16777216
-    # net.ipv4.tcp_low_latency=1
-    # net.ipv4.tcp_adv_win_scale=1
-    # net.core.somaxconn=2048
-    # net.ipv4.neigh.ens1.gc_stale_time=2000000
-    # net.ipv4.neigh.ens1.base_reachable_time_ms=120000
-    # net.ipv4.neigh.ens1.mcast_solicit=18
+    # kernel.randomize_va_space: 2
+    # net.ipv4.tcp_max_syn_backlog: 65536
+    # net.ipv4.tcp_timestamps: 0
+    # net.ipv4.tcp_sack: 1
+    # net.core.netdev_max_backlog: 250000
+    # net.core.rmem_max: 16777216
+    # net.core.wmem_max: 16777216
+    # net.core.rmem_default: 16777216
+    # net.core.wmem_default: 16777216
+    # net.core.optmem_max: 16777216
+    # net.ipv4.tcp_rmem: 4096 87380 16777216
+    # net.ipv4.tcp_wmem: 4096 65536 16777216
+    # net.ipv4.tcp_low_latency: 1
+    # net.ipv4.tcp_adv_win_scale: 1
+    # net.core.somaxconn: 2048
+    # net.ipv4.neigh.ens1.gc_stale_time: 2000000
+    # net.ipv4.neigh.ens1.base_reachable_time_ms: 120000
+    # net.ipv4.neigh.ens1.mcast_solicit: 18
 
 # Settings for /etc/tuned/tuned-main.conf
 tune_tuned_daemon: 1

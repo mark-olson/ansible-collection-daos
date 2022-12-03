@@ -48,18 +48,19 @@
     msg: "/etc/default/grub has changed. A reboot is required!"
   when: tune_grub.changed
 
-- name: Show reboot required message
-  ansible.builtin.shell: |
-    echo "Rebooting because grub changed" > /opt/ansible-reboot
-  when:
-    - tune_iommu_grub.changed
-    - tune_allow_reboot | default(false) | bool
+- name: Create /etc/ansible/reboot file
+  block:
+    - name: Create /etc/ansible directory
+      ansible.builtin.file:
+        path: /etc/ansible
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
 
-# TODO: Fix this! Need to test when running locally or from a controller
-- name: Reboot the host
-  ansible.builtin.shell: |
-    echo "Rebooting because grub changed" > /opt/ansible-reboot
+    - name: Create file used by reboot role to trigger a reboot
+      ansible.builtin.file:
+        path: /etc/ansible/reboot
+        state: touch
   when:
     - tune_iommu_grub.changed
-    - tune_allow_reboot | default(false) | bool
-    - ansible_connection == "local"

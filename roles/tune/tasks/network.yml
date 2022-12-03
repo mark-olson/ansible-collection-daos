@@ -1,12 +1,15 @@
 ---
 # network tuning tasks for the tune role
 
+# TODO: Need to figure out how to set MTU on openSUSE Leap 15.
+#       This task will fail because nmcli is not present. Maybe use yast?
 - name: "Set MTU on {{ ansible_default_ipv4.interface }}"
   community.general.nmcli:
-    conn_name: "{{ ansible_default_ipv4.interface }}"
+    conn_name: "System eth0" # "{{ ansible_default_ipv4.interface }}"
     mtu: "{{ tune_nic_default_ipv4_mtu | default('1500') }}"
     type: ethernet
     state: present
+  when: ansible_os_family | lower != "suse"
 
 - name: Auto configure combined NIC queues
   ansible.builtin.shell:

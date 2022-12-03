@@ -1,0 +1,16 @@
+---
+# Requirements for molecule testing
+
+#
+# Roles from github.com/daos-do
+#
+- src: git@github.com:daos-do/ansible-role-bootstrap.git
+  name: do.bootstrap
+  scm: git
+
+#
+# Roles from Ansible Galaxy
+#
+
+# - src: <role name>
+#   version: <version>

@@ -34,7 +34,7 @@ daos_workarounds:
       by adding and enabling the older 15.3 distro repos
 
 daos_access_points: []
-  #- "{{ ansible_default_ipv4.address }}"
+
 
 daos_port: 10001
 
