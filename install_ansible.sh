@@ -58,14 +58,14 @@ pkg_mgrs[ubuntu]=apt-get
 pkg_mgr="${pkg_mgrs[$ID]}"
 
 declare -A pkg_list;
-pkg_list[almalinux]="curl wget git python3 python3-pip"
+pkg_list[almalinux]="curl wget git python39"
 pkg_list[amzn]="curl wget git python3 python3-pip"
 pkg_list[centos]="curl wget git python3 python3-pip"
 pkg_list[debian]="curl wget git python3 python3-pip"
 pkg_list[fedora]="curl wget git python3 python3-pip"
 pkg_list[opensuse-leap]="curl wget git python3 python3-pip"
-pkg_list[rhel]="curl wget git python3 python3-pip"
-pkg_list[rocky]="curl wget git python3 python3-pip"
+pkg_list[rhel]="curl wget git python39"
+pkg_list[rocky]="curl wget git python39"
 pkg_list[ubuntu]="curl wget git python3 python3-pip"
 
 pkgs="${pkg_list[$ID]}"
@@ -83,6 +83,14 @@ install_pkgs() {
     fi
   fi
   "${pkg_mgr}" install -y ${pkgs}
+
+  case "$ID" in
+    alma | rocky | rhel)
+      update-alternatives --set python3 /usr/bin/python3.9
+      ;;
+    *)
+      ;;
+  esac
 }
 
 activate_venv() {
