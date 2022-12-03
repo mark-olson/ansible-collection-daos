@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-ANS_VENV_DIR="${ANS_VENV_DIR:-${HOME}/ansible-daos/.venv}"
+ANS_VENV_DIR="${ANS_VENV_DIR:-/root/ansible-daos/.venv}"
 ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
 ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
@@ -93,12 +93,6 @@ install_pkgs() {
   esac
 }
 
-activate_venv() {
-  if [[ -z $VIRTUAL_ENV ]]; then
-    source "${ANS_VENV_DIR}/bin/activate"
-  fi
-}
-
 create_venv() {
   log.info "Creating python virtualenv in ${ANS_VENV_DIR}"
   mkdir -p "${ANS_VENV_DIR}"
@@ -106,6 +100,12 @@ create_venv() {
   activate_venv
   log.info "Upgrading pip"
   pip install --upgrade --no-input pip
+}
+
+activate_venv() {
+  if [[ -z $VIRTUAL_ENV ]]; then
+    source "${ANS_VENV_DIR}/bin/activate"
+  fi
 }
 
 install_ansible() {
