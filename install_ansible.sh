@@ -14,9 +14,11 @@
 # limitations under the License.
 #
 
-ANS_VENV_DIR="${ANS_VENV_DIR:-/root/ansible-daos/.venv}"
+ANS_DIR="${ANS_DIR:-/root/ansible-daos}"
+ANS_VENV_DIR="${ANS_VENV_DIR:-${ANS_DIR}/.venv}"
 ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
 ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
+ANS_CREATE_INV_DIR="${ANS_CREATE_INV_DIR:-false}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
 ANSIBLE_DEPRECATION_WARNINGS=False
 
@@ -143,6 +145,51 @@ install_collection() {
   fi
 }
 
+create_inventory() {
+  if [[ "${ANS_CREATE_INV_DIR}" == "true" ]]; then
+    log.info "Creating inventory in ${ANS_DIR}"
+    mkdir -p "${ANS_DIR}/group_vars/all"
+    mkdir -p "${ANS_DIR}/group_vars/daos_admins"
+    mkdir -p "${ANS_DIR}/group_vars/daos_clients"
+    mkdir -p "${ANS_DIR}/group_vars/daos_servers"
+
+    cat > "${ANS_DIR}/group_vars/daos_admins/daos.yml" <<EOF
+---
+daos_roles:
+  - admin
+  - client
+EOF
+
+    cat > "${ANS_DIR}/group_vars/daos_clients/daos.yml" <<EOF
+---
+daos_roles:
+  - client
+EOF
+
+    cat > "${ANS_DIR}/group_vars/daos_servers/daos.yml" <<EOF
+---
+daos_roles:
+  - admin
+  - server
+EOF
+
+    cat > "${ANS_DIR}/hosts" <<EOF
+[daos_admins]
+localhost ansible_connection=local
+
+[daos_clients]
+
+[daos_servers]
+
+[daos_cluster:children]
+daos_admins
+daos_clients
+daos_servers
+
+EOF
+  fi
+}
+
 main() {
   if [[ ! -d "${ANS_VENV_DIR}" ]]; then
     install_pkgs
@@ -150,6 +197,7 @@ main() {
     install_ansible
   fi
   install_collection
+  create_inventory
   show_versions
   log.info "DONE!"
 }
