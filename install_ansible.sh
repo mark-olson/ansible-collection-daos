@@ -153,27 +153,33 @@ create_inventory() {
     mkdir -p "${ANS_DIR}/group_vars/daos_clients"
     mkdir -p "${ANS_DIR}/group_vars/daos_servers"
 
-    cat > "${ANS_DIR}/group_vars/daos_admins/daos.yml" <<EOF
+    if [[ ! -f "${ANS_DIR}/group_vars/daos_admins/daos.yml" ]]; then
+      cat > "${ANS_DIR}/group_vars/daos_admins/daos.yml" <<EOF
 ---
 daos_roles:
   - admin
   - client
 EOF
+    fi
 
-    cat > "${ANS_DIR}/group_vars/daos_clients/daos.yml" <<EOF
+    if [[ ! -f "${ANS_DIR}/group_vars/daos_clients/daos.yml" ]]; then
+      cat > "${ANS_DIR}/group_vars/daos_clients/daos.yml" <<EOF
 ---
 daos_roles:
   - client
 EOF
-
-    cat > "${ANS_DIR}/group_vars/daos_servers/daos.yml" <<EOF
+    fi
+    if [[ ! -f "${ANS_DIR}/group_vars/daos_servers/daos.yml" ]]; then
+      cat > "${ANS_DIR}/group_vars/daos_servers/daos.yml" <<EOF
 ---
 daos_roles:
   - admin
   - server
 EOF
+    fi
 
-    cat > "${ANS_DIR}/hosts" <<EOF
+    if [[ ! -f "${ANS_DIR}/hosts" ]]; then
+      cat > "${ANS_DIR}/hosts" <<EOF
 [daos_admins]
 localhost ansible_connection=local
 
@@ -187,6 +193,7 @@ daos_clients
 daos_servers
 
 EOF
+    fi
   fi
 }
 
