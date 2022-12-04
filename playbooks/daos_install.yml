@@ -10,7 +10,7 @@
   become: yes
 
   collections:
-    - mark_olson.daos
+    - daos_stack.daos
 
   roles:
     - role: epel
