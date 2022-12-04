@@ -19,6 +19,7 @@ ANS_VENV_DIR="${ANS_VENV_DIR:-${ANS_DIR}/.venv}"
 ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
 ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
 ANS_CREATE_INV_DIR="${ANS_CREATE_INV_DIR:-false}"
+ANS_CREATE_CFG="${ANS_CREATE_CFG:-false}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
 ANSIBLE_DEPRECATION_WARNINGS=False
 
@@ -145,6 +146,35 @@ install_collection() {
   fi
 }
 
+create_ansible_cfg() {
+  log.info "Creating ansible config file: ${ANS_DIR}/ansible.cfg"
+  if [[ ! -f "${ANS_DIR}/ansible.cfg" ]]; then
+    cat > "${ANS_DIR}/ansible.cfg" <<EOF
+[defaults]
+executable=/bin/bash
+forks=15
+inventory=./hosts
+local_tmp=~/.ansible/tmp
+deprecation_warnings=False
+collections_path=~/.ansible/collections
+host_key_checking=False
+interpreter_python=auto
+system_warnings=False
+use_persistent_connections=True
+
+[connection]
+pipelining=True
+
+[galaxy]
+cache_dir=~/.ansible/galaxy_cache
+
+[inventory]
+any_unparsed_is_failed=True
+
+EOF
+  fi
+}
+
 create_inventory() {
   if [[ "${ANS_CREATE_INV_DIR}" == "true" ]]; then
     log.info "Creating inventory in ${ANS_DIR}"
@@ -198,15 +228,17 @@ EOF
 }
 
 main() {
+  log.info "BEGIN: Ansible installation"
   if [[ ! -d "${ANS_VENV_DIR}" ]]; then
     install_pkgs
     create_venv
     install_ansible
   fi
   install_collection
+  create_ansible_cfg
   create_inventory
   show_versions
-  log.info "DONE!"
+  log.info "END: Ansible installation"
 }
 
 main
