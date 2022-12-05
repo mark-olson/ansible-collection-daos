@@ -1,16 +1,5 @@
 ---
 
-# If iommu is not enabled we have to run the daos_server service as root
-- name: Determine daos_server_user based on intel_iommu=on
-  ansible.builtin.shell: |
-    if grep -i -q 'intel_iommu=on' /proc/cmdline; then
-      echo {{ daos_server_user | default('daos_server') }}
-    else
-      echo root
-    fi
-  register: daos_config_server_user
-  changed_when: false
-
 - name: Include server configuration tasks
   ansible.builtin.include_tasks: config_server.yml
   args:
@@ -22,3 +11,14 @@
     - daos
     - daos_config
   when: '"server" in daos_roles'
+
+- name: Create daos_control.yml file
+  ansible.builtin.template:
+    src: 'etc/daos/daos_control_{{ daos_config_version }}.yml.j2'
+    dest: '/etc/daos/daos_control.yml'
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - daos
+    - daos_config

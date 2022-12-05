@@ -29,7 +29,7 @@ reboot_disable=yes
 
 ## Requirements
 
-Ansible 2.9 or greater
+Ansible 2.11 or greater
 
 ## Role Variables
 
@@ -47,7 +47,7 @@ None
   hosts: all
 
   roles:
-    - do.reboot
+    - reboot
 ```
 
 ## License

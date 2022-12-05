@@ -35,7 +35,6 @@ daos_workarounds:
 
 daos_access_points: []
 
-
 daos_port: 10001
 
 daos_server_user: daos_server

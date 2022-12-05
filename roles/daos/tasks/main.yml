@@ -13,11 +13,6 @@
 
 - name: Include distro family specific install.yml
   ansible.builtin.include_tasks: '{{ daos_install_task_file }}'
-  args:
-    apply:
-      tags:
-        - daos
-        - daos_install
   tags:
     - daos
     - daos_install
@@ -36,22 +31,12 @@
 
 - name: Include config tasks
   ansible.builtin.include_tasks: config.yml
-  args:
-    apply:
-      tags:
-        - daos
-        - daos_config
   tags:
     - daos
     - daos_config
 
 - name: Include admin tasks
   ansible.builtin.include_tasks: admin.yml
-  args:
-    apply:
-      tags:
-        - daos
-        - daos_admin
   tags:
     - daos
     - daos_admin

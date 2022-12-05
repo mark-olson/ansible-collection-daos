@@ -1,0 +1,86 @@
+---
+# playbook:     daos_cluster.yml
+# playbook_fqn: daos_stack.daos.daos_cluster
+
+- name: DAOS Cluster
+  hosts: all
+  gather_facts: yes
+
+  pre_tasks:
+    - set_fact:
+        daos_access_points: >-
+          {%- for host in groups['daos_servers'] -%}
+            {%- if hostvars[host]['is_access_point'] is defined -%}
+            {{ daos_access_points | default([]) + [hostvars[host].ansible_host] }}
+            {%- endif -%}
+          {%- endfor -%}
+
+  roles:
+    - role: daos_stack.daos.epel
+      tags: epel
+    - role: packages
+      tags: packages
+
+- name: DAOS Servers
+  hosts: daos_servers
+  gather_facts: yes
+
+  tasks:
+    - name: Show daos_access_points
+      ansible.builtin.debug:
+        var: daos_access_points | d('undefined')
+
+  roles:
+    - role: daos_stack.daos.tune
+      tags:
+        - tune
+        - tune_tuned
+        - tune_network
+        - tune_iommu
+    - role: daos_stack.daos.reboot
+      tags: reboot
+    - role: daos_stack.daos.daos
+      vars:
+        daos_roles:
+          - admin
+          - server
+      tags:
+        - daos
+        - daos_install
+        - daos_configure
+
+- name: DAOS clients
+  hosts: daos_clients
+  gather_facts: yes
+
+  roles:
+    - role: daos_stack.daos.tune
+      tags:
+        - tune
+        - tune_tuned
+        - tune_network
+        - tune_iommu
+    - role: daos_stack.daos.reboot
+      tags: reboot
+    - role: daos_stack.daos.daos
+      vars:
+        daos_roles:
+          - client
+      tags:
+        - daos
+        - daos_install
+        - daos_configure
+
+- name: DAOS admin hosts (bastions)
+  hosts: daos_admins
+  gather_facts: yes
+
+  roles:
+    - role: daos_stack.daos.daos
+      vars:
+        daos_roles:
+          - admin
+      tags:
+        - daos
+        - daos_install
+        - daos_configure

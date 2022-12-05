@@ -30,7 +30,6 @@ epel_gpg_key: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ epel_ve
 
 
 _epel_additional_repos:
-  default: []
   alma_8:
     - powertools
   rocky_8:
@@ -48,7 +47,7 @@ epel_additional_repos: "{{ _epel_additional_repos[ansible_distribution|replace('
   d(_epel_additional_repos[ansible_distribution|replace(' ','_')|lower] |
   d(_epel_additional_repos[ansible_os_family|lower ~'_'~ ansible_distribution_major_version] |
   d(_epel_additional_repos[ansible_os_family|lower] |
-  d(_epel_additional_repos['default'])))) }}"
+  d([])))) }}"
 
 # On CentOS Stream the epel-next-release repository should also be installed.
 # See https://docs.fedoraproject.org/en-US/epel/#_quickstart.

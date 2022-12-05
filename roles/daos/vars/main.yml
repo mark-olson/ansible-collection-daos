@@ -1,5 +1,5 @@
 ---
-# vars file for daos
+# vars for daos role
 
 daos_major_version: "{{ daos_version.split('.')[0] }}"
 daos_minor_version: "{{ daos_version.split('.')[1] }}"
@@ -56,53 +56,7 @@ daos_install_task_file: '{{  _daos_install_task_file[ansible_distribution|replac
   d(""))))) }}'
 
 _daos_dep_pkgs:
-  centos_7:
-    - clustershell
-    - lsof
-    - nvme-cli
-    - pciutils
-    - pdsh
-    - sudo
-    - vim
-    - which
-  fedora_36:
-    - clustershell
-    - lsof
-    - nvme-cli
-    - pciutils
-    - pdsh
-    - sudo
-    - vim
-    - which
-  amazon_2:
-    - clustershell
-    - lsof
-    - nvme-cli
-    - pciutils
-    - pdsh
-    - sudo
-    - vim
-    - which
-  redhat_8:
-    - clustershell
-    - lsof
-    - nvme-cli
-    - pciutils
-    - pdsh
-    - sudo
-    - vim
-    - which
-  suse:
-    - clustershell
-    - lsof
-    - nvme-cli
-    - pciutils
-    - pdsh
-    - sudo
-    - vim
-    - which
-  ubuntu:
-    - clustershell
+  default:
     - lsof
     - nvme-cli
     - pciutils
@@ -116,7 +70,7 @@ daos_dep_pkgs: '{{ _daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower ~"
   d(_daos_dep_pkgs[ansible_distribution|replace(" ","_")|lower] |
   d(_daos_dep_pkgs[ansible_os_family|lower ~"_"~ ansible_distribution_major_version] |
   d(_daos_dep_pkgs[ansible_os_family|lower] |
-  d([]))))) }}'
+  d(_daos_dep_pkgs["default"]))))) }}'
 
 _daos_repo_files_dir:
   apt: /etc/apt

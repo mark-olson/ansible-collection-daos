@@ -7,7 +7,7 @@
 #   register: daos_bdev_list
 
 # If iommu is not enabled we have to run the daos_server service as root
-- name: Determine daos_server user based on intel_iommu=on boot param
+- name: Determine daos_server_user based on intel_iommu=on
   ansible.builtin.shell: |
     if grep -i -q 'intel_iommu=on' /proc/cmdline; then
       echo {{ daos_server_user | default('daos_server') }}
