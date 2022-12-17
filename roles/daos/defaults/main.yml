@@ -1,8 +1,15 @@
 ---
-# defaults file for daos
+# defaults for daos role
 
 # Version of DAOS to install
 daos_version: 2.2.0
+
+# Flags that control actions
+daos_do_install: true
+daos_do_configuration: true
+daos_do_cert_gen: true
+daos_do_storage_format: true
+daos_do_storage_management: true
 
 # Required to be set in extra-vars, playbook or inventory
 # The term "roles" is overloaded here. In this context roles means "what is the
@@ -15,6 +22,11 @@ daos_roles: []
   # - client-test
   # - server
   # - server-test
+
+# Do not change these! They are used for when conditions.
+daos_role_admin: "admin"
+daos_role_client: "client"
+daos_role_server: "server"
 
 # URLs for repos
 daos_repo_base_url: https://packages.daos.io
@@ -40,27 +52,44 @@ daos_port: 10001
 daos_server_user: daos_server
 daos_agent_user: daos_agent
 
-# If true then the daos_certgen_script will be run and the certs will
-# be generated.
-daos_certgen: false
-daos_certgen_out_dir: /etc/daos/daosCA
-daos_certgen_script: "/usr/lib64/daos/certgen/gen_certificates.sh {{ daos_certgen_out_dir }}"
+# This is not to be confused with the server-side binary called daos_admin
+# and was later renamed to daos_server_helper in DAOS v2.2.0
+# This is the name of user that has admin permissions for the DAOS cluster.
+# Typically this user already exists on all nodes prior to installing DAOS.
+daos_admin_user: daos_admin
 
-daos_cert_ca_cert: /etc/daos/certs/daosCA.crt
-daos_cert_server_cert: /etc/daos/certs/server.crt
-daos_cert_server_key: /etc/daos/certs/server.key
-daos_cert_admin_cert: /etc/daos/certs/admin.crt
-daos_cert_admin_key: /etc/daos/certs/admin.key
+# If true then the cert gen script will be run to generate self signed certs.
+daos_certs_gen_enable: true
 
-daos_transport_config_allow_insecure: true
+# The gen_certificates.sh will create a daosCA in this directory
+daos_certs_gen_script_out_dir: /etc/daos
+
+daos_certs_gen_script_path: /usr/lib64/daos/certgen/gen_certificates.sh
+
+daos_certs_ca_cert_path: /etc/daos/certs/daosCA.crt
+daos_certs_server_cert_path: /etc/daos/certs/server.crt
+daos_certs_server_key_path: /etc/daos/certs/server.key
+daos_certs_admin_cert_path: /etc/daos/certs/admin.crt
+daos_certs_admin_key_path: /etc/daos/certs/admin.key
+daos_certs_agent_cert_path: /etc/daos/certs/agent.crt
+daos_certs_agent_key_path: /etc/daos/certs/agent.key
+
+daos_transport_config_allow_insecure: false
 
 # Use a more friendly name for enabling secure transport
 daos_deploy_certs: "{{ not (daos_transport_config_allow_insecure | bool) }}"
 
+# transport_config: section in configuration files
 daos_transport_config_client_cert_dir: /etc/daos/certs/clients
 daos_transport_config_ca_cert: /etc/daos/certs/daosCA.crt
 daos_transport_config_server_cert: /etc/daos/certs/server.crt
 daos_transport_config_server_key: /etc/daos/certs/server.key
+
+daos_transport_config_admin_cert: /etc/daos/certs/admin.crt
+daos_transport_config_admin_key: /etc/daos/certs/admin.key
+
+daos_transport_config_agent_cert: /etc/daos/certs/agent.crt
+daos_transport_config_agent_key: /etc/daos/certs/agent.key
 
 daos_server_provider: "ofi+tcp;ofi_rxm"
 daos_server_disable_vfio: "true"

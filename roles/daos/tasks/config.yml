@@ -1,24 +1,27 @@
 ---
 
+- name: Create daos_control.yml file
+  ansible.builtin.template:
+    src: 'etc/daos/{{ daos_config_version }}/daos_control.yml.j2'
+    dest: '/etc/daos/daos_control.yml'
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  tags:
+    - daos
+    - daos_config
+
 - name: Include server configuration tasks
-  ansible.builtin.include_tasks: config_server.yml
-  args:
-    apply:
-      tags:
-        - daos
-        - daos_config
+  ansible.builtin.import_tasks: config_server.yml
   tags:
     - daos
     - daos_config
   when: '"server" in daos_roles'
 
-- name: Create daos_control.yml file
-  ansible.builtin.template:
-    src: 'etc/daos/daos_control_{{ daos_config_version }}.yml.j2'
-    dest: '/etc/daos/daos_control.yml'
-    owner: root
-    group: root
-    mode: '0644'
+- name: Include client configuration tasks
+  ansible.builtin.import_tasks: config_client.yml
   tags:
     - daos
     - daos_config
+  when: '"client" in daos_roles'

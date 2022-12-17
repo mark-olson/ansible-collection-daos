@@ -1,9 +1,28 @@
 ---
 # vars for daos role
 
+# DAOS config version  to install depending on the value of daos_role
+
 daos_major_version: "{{ daos_version.split('.')[0] }}"
 daos_minor_version: "{{ daos_version.split('.')[1] }}"
-daos_config_version: "{{ daos_major_version ~ '.' ~ daos_minor_version }}"
+daos_major_minor_version: "{{ daos_major_version ~ '.' ~ daos_minor_version }}"
+
+# In each DAOS version there are changes to the schema of the
+# /etc/daos/daos_*.yml config files.
+# Since the files are generated with a jinja2 template the correct template
+# must be used for the version of DAOS that is being installed.
+# If installing a version that is not listed here, use the value of
+# daos_config_version will be set to "latest" which is the set of templates
+# for the most current version of DAOS. Note that depending on when
+# the "latest" templates were last updated, the schema may not match
+# the version of DAOS you are attempting to install.
+_daos_config_version:
+  v2.0: "{{ daos_major_minor_version }}"
+  v2.2: "{{ daos_major_minor_version }}"
+  v2.3: "2.4"
+  v2.4: "{{ daos_major_minor_version }}"
+
+daos_config_version: '{{ _daos_config_version["v" ~ daos_major_minor_version] | d("latest") }}'
 
 # DAOS packages to install depending on the value of daos_role
 daos_pkgs:
@@ -20,26 +39,30 @@ daos_pkgs:
     - daos-server
     - daos-server-tests
 
+# For known versions of DAOS we can list which distros are supported.
+# For an unknown version of DAOS we assume it's supported. This is done to allow
+# this role to install pre-release versions on different distros. However, there
+# is no guarantee that the install will be successful.
 _daos_distro_is_supported:
-  v1.2.0:
+  v1.2:
     centos_7: true
-  v2.0.3:
+  v2.0:
     centos_7: true
     redhat_8: true
     opensuse_leap_15.3: true
     opensuse_leap_15.4: '{{ daos_workarounds["daos_11637"].enabled | d(False) | bool }}'
-  v2.2.0:
+  v2.2:
     centos_7: true
     redhat_8: true
     opensuse_leap_15.3: true
     opensuse_leap_15.4: '{{ daos_wa_daos_11637_enabled | d(False) | bool }}'
 
-daos_distro_is_supported: '{{  _daos_distro_is_supported["v"~ daos_version][ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
-  d(_daos_distro_is_supported["v"~ daos_version][ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_major_version] |
-  d(_daos_distro_is_supported["v"~ daos_version][ansible_distribution|replace(" ","_")|lower] |
-  d(_daos_distro_is_supported["v"~ daos_version][ansible_os_family|lower ~"_"~ ansible_distribution_major_version] |
-  d(_daos_distro_is_supported["v"~ daos_version][ansible_os_family|lower] |
-  d(False))))) }}'
+daos_distro_is_supported: '{{  _daos_distro_is_supported["v"~ daos_major_minor_version][ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
+  d(_daos_distro_is_supported["v"~ daos_major_minor_version][ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_major_version] |
+  d(_daos_distro_is_supported["v"~ daos_major_minor_version][ansible_distribution|replace(" ","_")|lower] |
+  d(_daos_distro_is_supported["v"~ daos_major_minor_version][ansible_os_family|lower ~"_"~ ansible_distribution_major_version] |
+  d(_daos_distro_is_supported["v"~ daos_major_minor_version][ansible_os_family|lower] |
+  d(True))))) }}'
 
 _daos_install_task_file:
   amazon: install_amazon.yml
@@ -120,3 +143,13 @@ daos_repos:
     enabled: "{{ daos_repo_enable_debug  | d(false) | bool | ternary('0', '1') }}"
     gpgcheck: 1
     gpgkey: "{{ daos_repo_gpg_key_url }}"
+
+_daos_admin_user_groups:
+  redhat: adm,systemd-journal
+
+daos_admin_user_groups: '{{ _daos_admin_user_groups[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_version] |
+  d(_daos_admin_user_groups[ansible_distribution|replace(" ","_")|lower ~"_"~ ansible_distribution_major_version] |
+  d(_daos_admin_user_groups[ansible_distribution|replace(" ","_")|lower] |
+  d(_daos_admin_user_groups[ansible_os_family|lower ~"_"~ ansible_distribution_major_version] |
+  d(_daos_admin_user_groups[ansible_os_family|lower] |
+  d(""))))) }}'

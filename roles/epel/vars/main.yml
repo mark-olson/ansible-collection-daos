@@ -30,18 +30,13 @@ epel_gpg_key: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ epel_ve
 
 
 _epel_additional_repos:
-  alma_8:
+  alma:
     - powertools
   rocky_8:
     - powertools
-  stream_8:
+  stream:
     - powertools
-  alma_9:
-    - crb
-  rocky_9:
-    - crb
-  stream_9:
-    - crb
+  redhat: []
 
 epel_additional_repos: "{{ _epel_additional_repos[ansible_distribution|replace(' ','_')|lower ~'_'~ ansible_distribution_major_version] |
   d(_epel_additional_repos[ansible_distribution|replace(' ','_')|lower] |

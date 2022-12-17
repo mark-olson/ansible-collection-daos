@@ -1,0 +1,34 @@
+---
+# administration tasks for the daos role
+
+- name: show inventory_hostname
+  debug:
+    var: inventory_hostname
+
+# - name: show inventory_hostname in daos_admins
+#   debug:
+#     msg: "{{ inventory_hostname in groups['daos_admins'] and
+#     daos_do_storage_format | bool and
+#     not ansible_local.daos.system_initialized | bool }}"
+
+- name: show system_initialized
+  debug:
+    var: ansible_local.daos.system_initialized | bool
+
+- name: Format storage
+  ansible.builtin.shell: /usr/bin/dmg storage format
+  run_once: true
+  when: (inventory_hostname in groups['daos_admins']) and
+        daos_do_storage_format | bool and
+        not (ansible_local.daos.system_initialized | bool)
+
+# After running 'dmg storage format' running
+# 'dmg system query -v' will block until the system is
+# initialized. This is how we wait before going on to
+# create pools and containers.
+- name: Wait for system to initialize
+  ansible.builtin.command: /usr/bin/dmg system query -v
+  run_once: true
+  when: (inventory_hostname in groups['daos_admins']) and
+        daos_do_storage_format | bool and
+        not (ansible_local.daos.system_initialized | bool)

@@ -1,12 +1,25 @@
 ---
 # Certificate generation tasks for the daos role
 
+# - name: Create certificate generation script output dir
+#   ansible.builtin.file:
+#     path: "{{ daos_certs_gen_script_out_dir }}"
+#     state: directory
+#     mode: '0700'
+#   delegate_to: "{{ groups['daos_admins'][0] }}"
+
+- name: DEBUG
+  debug:
+    var: daos_roles
+
 - name: Generate self signed certificates
   ansible.builtin.command:
   args:
-    cmd: /usr/lib64/daos/certgen/gen_certificates.sh /etc/daos
-    creates: /etc/daos/daosCA
-  when: daos_certgen | default(false) | bool
+    cmd: "{{ daos_certs_gen_script_path }}"
+    chdir: "{{ daos_certs_gen_script_out_dir }}"
+    creates: "{{ daos_certs_gen_script_out_dir }}/daosCA"
+  when: daos_certs_gen_enable | default(false) | bool
+  delegate_to: "{{ groups['daos_admins'][0] }}"
 
 - name: Create certs directories
   ansible.builtin.file:
@@ -17,56 +30,131 @@
     - /etc/daos/certs
     - /etc/daos/certs/clients
 
-- name: Copy daosCA self signed certs
-  ansible.builtin.copy:
+- name: Copy daosCA self signed certs (server)
+  ansible.builtin.synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: "{{ item.owner }}"
-    remote_src: yes
+    owner: false
+    group: false
+    perms: false
+    times: false
+    checksum: true
+    verify_host: false
+    mode: push
   loop:
     - {
-        src: /etc/daos/daosCA/certs/daosCA.crt,
-        dest: "{{ daos_cert_ca_cert }}",
-        owner: root,
-        mode: '0644'
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/daosCA.crt",
+        dest: "{{ daos_transport_config_ca_cert }}"
       }
     - {
-        src: /etc/daos/daosCA/certs/server.crt,
-        dest: "{{ daos_cert_server_cert }}",
-        owner: root,
-        mode: '0600'
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/server.crt",
+        dest: "{{ daos_transport_config_server_cert }}"
       }
     - {
-        src: /etc/daos/daosCA/certs/server.key,
-        dest: "{{ daos_cert_server_key }}",
-        owner: root,
-        mode: '0600'
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/server.key",
+        dest: "{{ daos_transport_config_server_key }}"
       }
     - {
-        src: /etc/daos/daosCA/certs/admin.crt,
-        dest: "{{ daos_cert_admin_cert }}",
-        owner: root,
-        mode: '0600'
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/admin.crt",
+        dest: "{{ daos_transport_config_admin_cert }}"
       }
     - {
-        src: /etc/daos/daosCA/certs/admin.key,
-        dest: "{{ daos_cert_admin_key }}",
-        owner: root,
-        mode: '0600'
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/admin.key",
+        dest: "{{ daos_transport_config_admin_key }}"
+      }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/agent.crt",
+        dest: "{{ daos_transport_config_client_cert_dir }}"
       }
   loop_control:
     label: "{{ item.dest }}"
+  delegate_to: "{{ groups['daos_admins'][0] }}"
+  when: daos_role_server in daos_roles
 
-- name: Copy agent self signed certs [server]
+- name: Copy daosCA self signed certs (client)
+  ansible.builtin.synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: false
+    group: false
+    perms: false
+    times: false
+    checksum: true
+    verify_host: false
+    mode: push
+  loop:
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/daosCA.crt",
+        dest: "{{ daos_transport_config_ca_cert }}"
+      }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/agent.crt",
+        dest: "{{ daos_transport_config_agent_cert }}"
+      }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/agent.key",
+        dest: "{{ daos_transport_config_agent_key }}"
+      }
+  loop_control:
+    label: "{{ item.dest }}"
+  when: daos_role_client in daos_roles
+  delegate_to: "{{ groups['daos_admins'][0] }}"
+
+
+- name: Copy daosCA self signed certs [admin]
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: "{{ item.owner }}"
-    remote_src: yes
+    remote_src: "{{ lookup('pipe','hostname') != inventory_hostname }}"
   loop:
     - {
-        src: /etc/daos/daosCA/certs/daosCA.crt,
-        dest: "{{ daos_cert_ca_cert }}",
-        owner: root,
-        mode: '0644'
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/daosCA.crt",
+        dest: "{{ daos_transport_config_ca_cert }}"
       }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/agent.crt",
+        dest: "{{ daos_transport_config_agent_cert }}"
+      }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/agent.key",
+        dest: "{{ daos_transport_config_agent_key }}"
+      }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/admin.crt",
+        dest: "{{ daos_transport_config_admin_cert }}"
+      }
+    - {
+        src: "{{ daos_certs_gen_script_out_dir }}/daosCA/certs/admin.key",
+        dest: "{{ daos_transport_config_admin_key }}"
+      }
+  loop_control:
+    label: "{{ item.dest }}"
+  when: (daos_role_server not in daos_roles) and (daos_role_admin in daos_roles)
+
+
+- name: Set cert permissions (DAOS server)
+  ansible.builtin.file:
+    path: /etc/daos/certs
+    state: directory
+    recurse: yes
+    owner: "{{ ansible_local.daos.iommu_enabled | ternary(daos_server_user, 'root') }}"
+    group: "{{ ansible_local.daos.iommu_enabled | ternary(daos_server_user, 'root') }}"
+  when: daos_role_server in daos_roles
+
+- name: Set cert permissions (DAOS client)
+  ansible.builtin.file:
+    path: /etc/daos/certs
+    state: directory
+    recurse: yes
+    owner: "{{ daos_agent_user }}"
+    group: "{{ daos_agent_user }}"
+  when: (daos_role_client in daos_roles) and (daos_role_admin not in daos_roles)
+
+- name: Set cert permissions (DAOS admin)
+  ansible.builtin.file:
+    path: /etc/daos/certs
+    state: directory
+    recurse: yes
+    owner: "{{ daos_admin_user }}"
+    group: "{{ daos_admin_user }}"
+  when: (daos_role_server not in daos_roles) and (daos_role_admin in daos_roles)

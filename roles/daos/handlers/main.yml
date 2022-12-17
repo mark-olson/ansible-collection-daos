@@ -5,3 +5,10 @@
   ansible.builtin.service:
     name: daos_server
     state: restarted
+  tags: all
+
+- name: restart daos_agent service
+  ansible.builtin.service:
+    name: daos_agent
+    state: restarted
+  tags: all

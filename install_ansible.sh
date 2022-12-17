@@ -147,9 +147,10 @@ install_collection() {
 }
 
 create_ansible_cfg() {
-  log.info "Creating ansible config file: ${ANS_DIR}/ansible.cfg"
-  if [[ ! -f "${ANS_DIR}/ansible.cfg" ]]; then
-    cat > "${ANS_DIR}/ansible.cfg" <<EOF
+  if [[ "${ANS_CREATE_CFG} == "true" ]]; then
+    log.info "Creating ansible config file: ${ANS_DIR}/ansible.cfg"
+    if [[ ! -f "${ANS_DIR}/ansible.cfg" ]]; then
+      cat > "${ANS_DIR}/ansible.cfg" <<EOF
 [defaults]
 executable=/bin/bash
 forks=15
@@ -172,6 +173,7 @@ cache_dir=~/.ansible/galaxy_cache
 any_unparsed_is_failed=True
 
 EOF
+    fi
   fi
 }
 
@@ -183,8 +185,8 @@ create_inventory() {
     mkdir -p "${ANS_DIR}/group_vars/daos_clients"
     mkdir -p "${ANS_DIR}/group_vars/daos_servers"
 
-    if [[ ! -f "${ANS_DIR}/group_vars/daos_admins/daos.yml" ]]; then
-      cat > "${ANS_DIR}/group_vars/daos_admins/daos.yml" <<EOF
+    if [[ ! -f "${ANS_DIR}/group_vars/daos_admins/daos" ]]; then
+      cat > "${ANS_DIR}/group_vars/daos_admins/daos" <<EOF
 ---
 daos_roles:
   - admin
@@ -192,8 +194,8 @@ daos_roles:
 EOF
     fi
 
-    if [[ ! -f "${ANS_DIR}/group_vars/daos_clients/daos.yml" ]]; then
-      cat > "${ANS_DIR}/group_vars/daos_clients/daos.yml" <<EOF
+    if [[ ! -f "${ANS_DIR}/group_vars/daos_clients/daos" ]]; then
+      cat > "${ANS_DIR}/group_vars/daos_clients/daos" <<EOF
 ---
 daos_roles:
   - client
