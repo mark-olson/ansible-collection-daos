@@ -147,7 +147,7 @@ install_collection() {
 }
 
 create_ansible_cfg() {
-  if [[ "${ANS_CREATE_CFG} == "true" ]]; then
+  if [[ "${ANS_CREATE_CFG}" == "true" ]]; then
     log.info "Creating ansible config file: ${ANS_DIR}/ansible.cfg"
     if [[ ! -f "${ANS_DIR}/ansible.cfg" ]]; then
       cat > "${ANS_DIR}/ansible.cfg" <<EOF
