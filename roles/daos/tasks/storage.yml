@@ -1,22 +1,40 @@
 ---
 # administration tasks for the daos role
 
+- name: show IPs of all servers
+  debug:
+    msg: "{{ groups['daos_servers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
+  when: inventory_hostname in groups['daos_admins']
+
 - name: show inventory_hostname
   debug:
     var: inventory_hostname
+  when: inventory_hostname in groups['daos_admins']
 
-# - name: show inventory_hostname in daos_admins
-#   debug:
-#     msg: "{{ inventory_hostname in groups['daos_admins'] and
-#     daos_do_storage_format | bool and
-#     not ansible_local.daos.system_initialized | bool }}"
+- name: show inventory_hostname in daos_admins
+  debug:
+    msg: "{{ inventory_hostname in groups['daos_admins'] and
+    daos_do_storage_format | bool and
+    not ansible_local.daos.system_initialized | bool }}"
+  when: inventory_hostname in groups['daos_admins']
 
 - name: show system_initialized
   debug:
     var: ansible_local.daos.system_initialized | bool
+  when: inventory_hostname in groups['daos_admins']
+
+- name: Set fact containing IPs of all servers
+  ansible.builtin.set_fact:
+    daos_server_ips: "{{ groups['daos_servers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
+
+- name: Ensure that the daos_server server service is started
+  ansible.builtin.service:
+    name: daos_server
+    state: started
+  when: inventory_hostname in groups['daos_servers']
 
 - name: Format storage
-  ansible.builtin.shell: /usr/bin/dmg storage format
+  ansible.builtin.shell: "/usr/bin/dmg storage format -l '{{ daos_server_ips }}'"
   run_once: true
   when: (inventory_hostname in groups['daos_admins']) and
         daos_do_storage_format | bool and
@@ -30,5 +48,4 @@
   ansible.builtin.command: /usr/bin/dmg system query -v
   run_once: true
   when: (inventory_hostname in groups['daos_admins']) and
-        daos_do_storage_format | bool and
-        not (ansible_local.daos.system_initialized | bool)
+        daos_do_storage_format | bool

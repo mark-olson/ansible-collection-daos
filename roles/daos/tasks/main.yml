@@ -56,7 +56,6 @@
       tags:
         - daos
         - daos_storage
-  when: inventory_hostname in groups['daos_admins']
   tags:
     - daos
     - daos_storage
