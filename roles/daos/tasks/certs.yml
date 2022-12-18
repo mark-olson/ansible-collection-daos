@@ -18,7 +18,6 @@
     cmd: "{{ daos_certs_gen_script_path }}"
     chdir: "{{ daos_certs_gen_script_out_dir }}"
     creates: "{{ daos_certs_gen_script_out_dir }}/daosCA"
-  run_once: true
   when: (daos_certs_gen_enable | default(false) | bool) and
         inventory_hostname == groups['daos_admins'][0]
   #delegate_to: "{{ groups['daos_admins'][0] }}"
