@@ -30,12 +30,6 @@
     - daos
     - daos_install
 
-# - name: Include distro family specific install.yml
-#   ansible.builtin.import_tasks: install.yml
-#   tags:
-#     - daos
-#     - daos_install
-
 - name: Include certificate deployment tasks
   ansible.builtin.import_tasks: certs.yml
   when: daos_deploy_certs

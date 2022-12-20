@@ -11,41 +11,75 @@
     var: inventory_hostname
   when: inventory_hostname in groups['daos_admins']
 
-- name: show inventory_hostname in daos_admins
-  debug:
-    msg: "{{ inventory_hostname in groups['daos_admins'] and
-    daos_do_storage_format | bool and
-    not ansible_local.daos.system_initialized | bool }}"
-  when: inventory_hostname in groups['daos_admins']
-
-- name: show system_initialized
-  debug:
-    var: ansible_local.daos.system_initialized | bool
-  when: inventory_hostname in groups['daos_admins']
-
 - name: Set fact containing IPs of all servers
   ansible.builtin.set_fact:
     daos_server_ips: "{{ groups['daos_servers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
 
-- name: Ensure that the daos_server server service is started
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure that the daos_server service is started
   ansible.builtin.service:
     name: daos_server
     state: started
-  when: inventory_hostname in groups['daos_servers']
+  when: daos_role_server in daos_roles
+
+- name: Ensure that the daos_agent service is started
+  ansible.builtin.service:
+    name: daos_agent
+    state: started
+  when: daos_role_client in daos_roles
+
+# FIX: This is very fragile.
+#      https://daosio.atlassian.net/browse/DAOS-12293
+- name: Determine if system is initialized
+  ansible.builtin.shell: |
+    if dmg system query -o {{ daos_admin_config_dir }}/daos_control.yml -v -j 2>/dev/null | jq -r '.error' | grep -q "system is uninitialized"; then
+      echo true
+    else
+      echo false
+    fi
+  become_user: "{{ daos_admin_user }}"
+  changed_when: false
+  when: inventory_hostname == groups['daos_admins'][0]
+  register: daos_format_needed
+
+- name: DEBUG daos_format_needed
+  debug:
+    var: daos_format_needed
+
+- name: DEBUG daos_do_storage_format
+  debug:
+    var: daos_do_storage_format
+
+- name: DEBUG format storage when
+  debug:
+    msg: "{{ (inventory_hostname == groups['daos_admins'][0]) and
+        (daos_do_storage_format | bool) and
+        (daos_format_needed.stdout | bool) }}"
 
 - name: Format storage
-  ansible.builtin.shell: "/usr/bin/dmg storage format -l '{{ daos_server_ips }}'"
-  run_once: true
-  when: (inventory_hostname in groups['daos_admins']) and
-        daos_do_storage_format | bool and
-        not (ansible_local.daos.system_initialized | bool)
+  ansible.builtin.shell: "dmg storage format -o {{ daos_admin_config_dir }}/daos_control.yml -l '{{ daos_server_ips }}'"
+  become_method: su
+  become_user: "{{ daos_admin_user }}"
+  when: (inventory_hostname == groups['daos_admins'][0]) and
+        (daos_do_storage_format | bool) and
+        (daos_format_needed.stdout | bool)
 
-# After running 'dmg storage format' running
-# 'dmg system query -v' will block until the system is
-# initialized. This is how we wait before going on to
-# create pools and containers.
+- name: DEBUG number of servers
+  debug:
+    var: groups['daos_servers'] | length
+
+# After running 'dmg storage format' running 'dmg system query' will block until
+# the system is initialized. We should not go on until all of the servers have
+# joined.
 - name: Wait for system to initialize
-  ansible.builtin.command: /usr/bin/dmg system query -v
-  run_once: true
-  when: (inventory_hostname in groups['daos_admins']) and
-        daos_do_storage_format | bool
+  ansible.builtin.shell: dmg system query -o /home/daos_admin/daos/daos_control.yml -j | jq -r '.response.members[]|select(.state=="joined")|.fault_domain'
+  become_method: su
+  become_user: "{{ daos_admin_user }}"
+  register: daos_joined_servers
+  until: daos_joined_servers.stdout_lines | length == groups['daos_servers'] | length
+  delay: 5
+  retries: 10
+  when: inventory_hostname == groups['daos_admins'][0]
+  changed_when: false

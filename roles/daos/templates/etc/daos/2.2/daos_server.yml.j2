@@ -45,7 +45,7 @@ transport_config:
   allow_insecure: {{ daos_transport_config_allow_insecure | default(false) | bool | string | lower }}
 {% if not daos_transport_config_allow_insecure | bool %}
   # Location where daos_server will look for Client certificates
-  client_cert_dir: {{ daos_transport_config_client_cert_dir }}
+  client_cert_dir: {{ daos_transport_config_clients_cert_dir }}
   # Custom CA Root certificate for generated certs
   ca_cert: {{ daos_transport_config_ca_cert }}
   # Server certificate for use in TLS handshakes

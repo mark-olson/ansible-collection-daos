@@ -22,19 +22,9 @@ def iommu_enabled():
         else:
             return False
 
-# TODO: Find a more robust way to know if the system is
-#       initialized. Relying on text output is fragile!
-def system_initialized():
-    stdout = run_command('dmg system query -v 2>&1')
-    if "system is uninitialized" in stdout:
-        return False
-    else:
-        return True
-
 def main():
     facts = {}
     facts['iommu_enabled'] = iommu_enabled()
-    facts['system_initialized'] = system_initialized()
     print(json.dumps(facts, sort_keys=False, indent=4, separators=(',', ' : ')))
 
 
