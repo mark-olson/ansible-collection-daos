@@ -20,7 +20,6 @@
     creates: "{{ daos_certs_gen_CA_dir }}"
   when: (daos_certs_gen_enable | default(false) | bool) and
         inventory_hostname == groups['daos_admins'][0]
-  run_once: true
 
 - name: Create certs directory
   ansible.builtin.file:

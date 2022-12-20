@@ -83,3 +83,20 @@
   retries: 10
   when: inventory_hostname == groups['daos_admins'][0]
   changed_when: false
+
+- name: Create pools
+  ansible.builtin.shell: |
+    if [[ ! $(dmg pool list -o /home/daos_admin/daos/daos_control.yml -j | jq -r '.response.pools[] | select(.label=="{{ pool.label }}") | .label') == "io500_pool" ]]; then
+      dmg pool create -o {{ daos_admin_config_dir }}/daos_control.yml -z {{ pool.size }} -t {{ pool.tier_ratio }} -u {{ pool.user }} --label="{{ pool.label }}"
+      dmg pool set-prop "{{ pool.label }}" -o {{ daos_admin_config_dir }}/daos_control.yml --name=reclaim --value=disabled
+      {% for acl in pool.acls %}
+        dmg pool update-acl -o {{ daos_admin_config_dir }}/daos_control.yml -e "{{ acl }}" {{ pool.label }}
+      {% endfor %}
+    fi
+  become_method: su
+  become_user: "{{ daos_admin_user }}"
+  when: inventory_hostname == groups['daos_admins'][0]
+  changed_when: false
+  loop: "{{ daos_pools }}"
+  loop_control:
+    loop_var: pool

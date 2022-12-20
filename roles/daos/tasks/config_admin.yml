@@ -30,6 +30,19 @@
     - daos
     - daos_config
 
+- name: Stat .bashrc for daos admin user
+  ansible.builtin.stat:
+    path: /home/{{ daos_admin_user }}/.bashrc
+  register: daos_admin_bashrc
+
+- name: Create .bashrc for daos admin user
+  ansible.builtin.shell: |
+    rsync -avh /etc/skel/ /home/{{ daos_admin_user }}/
+    chown -R {{ daos_admin_user }}:{{ daos_admin_user }} /home/{{ daos_admin_user }}
+  when: (daos_admin_bashrc.stat is not defined) or
+    (daos_admin_bashrc.stat is defined and not daos_admin_bashrc.stat.exists) and
+    (inventory_hostname == groups['daos_admins'][0])
+
 - name: "config_admin | Add dmg alias to {{ daos_admin_user }} .bashrc"
   ansible.builtin.lineinfile:
     path: "~/.bashrc"
