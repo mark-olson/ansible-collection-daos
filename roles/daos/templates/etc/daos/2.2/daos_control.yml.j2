@@ -15,7 +15,7 @@ port: {{ daos_port }}
 
 # hostlist, a comma separated list of addresses (hostnames or IPv4 addresses).
 # hostlist: ['localhost']
-hostlist: {{ daos_access_points | to_json }}
+hostlist: {{ groups['daos_servers'] | map('extract', hostvars, 'ansible_default_ipv4') | map(attribute='address') | list | to_json }}
 
 ## Transport Credentials Specifying certificates to secure communications
 transport_config:
