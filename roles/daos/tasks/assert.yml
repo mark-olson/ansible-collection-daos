@@ -1,4 +1,5 @@
 ---
+# assert tasks for the daos role
 
 - name: Verify daos_roles has been set
   ansible.builtin.assert:

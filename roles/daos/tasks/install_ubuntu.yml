@@ -1,5 +1,5 @@
 ---
-# Ubuntu installation tasks for daos
+# installation tasks file for daos on Ubuntu
 
 - name: Install dependent packages
   ansible.builtin.package:

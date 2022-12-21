@@ -1,5 +1,5 @@
 ---
-# RedHat installation tasks for daos
+# installation tasks file for daos on RedHat family distros
 
 - name: Create repo file
   ansible.builtin.template:

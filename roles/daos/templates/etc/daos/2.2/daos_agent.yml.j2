@@ -33,11 +33,8 @@ port: {{ daos_port }}
 transport_config:
   allow_insecure: {{ daos_transport_config_allow_insecure | default(false) | bool | string | lower }}
 {% if not daos_transport_config_allow_insecure | bool %}
-  # Custom CA Root certificate for generated certs
   ca_cert: {{ daos_transport_config_ca_cert }}
-  # Server certificate for use in TLS handshakes
   cert: {{ daos_transport_config_agent_cert }}
-  # Key portion of Server Certificate
   key: {{ daos_transport_config_agent_key }}
 {% endif %}
 

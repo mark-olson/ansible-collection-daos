@@ -1,5 +1,5 @@
 ---
-# main tasks file for daos
+# main tasks file for daos role
 
 - name: Import assert.yml
   ansible.builtin.import_tasks: assert.yml

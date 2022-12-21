@@ -1,4 +1,6 @@
-# https://raw.githubusercontent.com/daos-stack/daos/master/utils/config/daos_agent.yml
+#
+# {{ ansible_managed }}
+#
 # DAOS agent configuration file.
 #
 # Location of this configuration file is determined by first checking for the
@@ -21,25 +23,20 @@
 # Management server access points
 # Must have the same value for all agents and servers in a system.
 # default: hostname of this node
-#access_points: ['hostname1']
+access_points: {{ daos_access_points | to_json }}
 
 # Force different port number to connect to access points.
 # default: 10001
-#port: 10001
+port: {{ daos_port }}
 
 ## Transport Credentials Specifying certificates to secure communications
-#
-#transport_config:
-#  # In order to disable transport security, uncomment and set allow_insecure
-#  # to true. Not recommended for production configurations.
-#  allow_insecure: false
-#
-#  # Custom CA Root certificate for generated certs
-#  ca_cert: /etc/daos/certs/daosCA.crt
-#  # Agent certificate for use in TLS handshakes
-#  cert: /etc/daos/certs/agent.crt
-#  # Key portion of Agent Certificate
-#  key: /etc/daos/certs/agent.key
+transport_config:
+  allow_insecure: {{ daos_transport_config_allow_insecure | default(false) | bool | string | lower }}
+{% if not daos_transport_config_allow_insecure | bool %}
+  ca_cert: {{ daos_transport_config_ca_cert }}
+  cert: {{ daos_transport_config_agent_cert }}
+  key: {{ daos_transport_config_agent_key }}
+{% endif %}
 
 # Use the given directory for creating unix domain sockets
 #
@@ -74,11 +71,6 @@
 #
 ## default: false
 #disable_caching: true
-
-## Ignore a subset of fabric interfaces when selecting an interface for client
-## applications.
-#
-#exclude_fabric_ifaces: ["lo", "eth1"]
 
 # Manually define the fabric interfaces and domains to be used by the agent,
 # organized by NUMA node.

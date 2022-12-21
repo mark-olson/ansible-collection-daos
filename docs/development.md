@@ -24,6 +24,10 @@ patch $podman_path podman.py.patch
 
 ## Testing roles with molecule
 
+**WARNING:**
+
+As of November 2022 molecule tests were broken and therefore have not been used. We need to go back through all roles and fix the molecule tests.
+
 ```bash
 cd roles/<role_name>
 molecule test

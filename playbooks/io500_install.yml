@@ -1,6 +1,6 @@
 ---
-# playbook:     io500.yml
-# playbook_fqn: daos_stack.daos.io500
+# playbook:     io500_install.yml
+# playbook_fqn: daos_stack.daos.io500_install
 
 - name: IO500 installation
   hosts: daos_clients:daos_admins

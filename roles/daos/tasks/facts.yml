@@ -1,7 +1,5 @@
 ---
-#
-# daos custom facts
-#
+# custom facts for the daos role
 
 - name: Create facts directory
   file:

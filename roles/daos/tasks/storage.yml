@@ -1,5 +1,5 @@
 ---
-# administration tasks for the daos role
+# storage administration tasks for the daos role
 
 - name: show IPs of all servers
   debug:

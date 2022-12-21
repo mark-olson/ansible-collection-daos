@@ -1,6 +1,8 @@
 ---
 # handlers file for daos
 
+# If the daos_server service is restarted, then all daos_agent services should
+# be restarted.
 - name: restart daos_server service
   ansible.builtin.service:
     name: daos_server

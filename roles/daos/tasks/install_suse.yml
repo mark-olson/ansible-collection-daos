@@ -1,5 +1,5 @@
 ---
-# SUSE installation tasks for daos
+# installation tasks file for daos on openSUSE Leap 15.x
 
 # See https://daosio.atlassian.net/browse/DAOS-11637
 - name: Implement workaround for DAOS-11637

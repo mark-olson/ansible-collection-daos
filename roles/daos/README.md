@@ -1,10 +1,13 @@
-# mark-olson.daos.daos
+# Role: daos
 
-This Ansible role will install and configure DAOS.
+This Ansible role will install and configure DAOS on a host.
 
-> In Ansible terminology a *compute instance* is referred to as a *host*. A host can be a bare metal machine, VM, or container. The term *host* will be used in the documentation below to refer to any target where the `daos-stack.daos` *Ansible role* will run.
+> A host can be a bare metal machine, VM, or container. The term *host* will be used in the documentation below to refer to any target where the `daos_stack.daos.daos` *Ansible role* will run.
 
-In this documentation the term "role" is used to refer to the `daos-stack.daos` *Ansible role* as well as the role that a host is assigned within a [DAOS system](https://docs.daos.io/latest/overview/architecture/#daos-system).
+In this documentation the term "role" is overloaded.
+
+- Used to refer to the `daos_stack.daos.daos` *Ansible role*
+- The role that a host is assigned within a [DAOS system](https://docs.daos.io/latest/overview/architecture/#daos-system). A host may take on the role of a DAOS server, a DAOS client, a DAOS admin or any combination of the three.
 
 In a [DAOS system](https://docs.daos.io/latest/overview/architecture/#daos-system) hosts can be assigned one or more of the following roles:
 
@@ -15,7 +18,7 @@ In a [DAOS system](https://docs.daos.io/latest/overview/architecture/#daos-syste
 - **DAOS Admin**
   Has the DAOS admin utilities installed. Typically used by administrators to manage the DAOS system.
 
-When using the `daos-stack.daos` Ansible role to install a DAOS on a target host, you must determine the *role* that host will be assigned within the DAOS system. For more information see the documentation for the `daos_role` variable below.
+When using the `daos_stack.daos.daos` Ansible role to install a DAOS on a target host, you must determine the DAOS system *role* that host will be assigned within the DAOS system. For more information see the documentation for the `daos_role` variable below.
 
 ## Requirements
 
@@ -33,26 +36,39 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: daos_servers
-      roles:
-         - { role: daos-stack.daos.daos, daos_roles: [server] }
+```yaml
+- hosts: daos_servers
+  roles:
+    - { role: daos_stack.daos.daos.daos, daos_roles: [server] }
+```
+Or
 
+```yaml
+- hosts: daos_servers
+  roles:
+    - role: daos_servers
+      vars:
+        daos_roles: [server]
+```
 
 ## Installation Scenarios
+
+Need to test and document the following scenarios.
 
 ### Local Connections
 
 1. Packer provisioner to install DAOS for image builds
-2. Configure systems in a startup script
-   1. Config files
-   2. Certificates
+2. Configure systems using ansible pull from cloud-init user_data
 3. Configure a single server
+   - Run in local mode and install DAOS server, client and admin on a single host
 4. Configure a developer workstation
-5. Install DAOS by compiling daos-dev
+   - Set up a workstation for DAOS development
+5. Install DAOS from source
+
 
 ### Remote Connections
 
-1. Configure a single server
-2. Install a cluster on a set of nodes
-3. Perform configuration only
-4. Configure a developer workstation
+1. Configure a single remote host as a standalone DAOS cluster
+2. Install a full cluster on a set of remote hosts from an Ansible controller
+3. Perform configuration only on remote hosts
+4. Perform storage administration only on remote hosts

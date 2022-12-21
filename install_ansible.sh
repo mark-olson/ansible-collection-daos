@@ -18,8 +18,8 @@ ANS_DIR="${ANS_DIR:-${HOME}/ansible-daos}"
 ANS_VENV_DIR="${ANS_VENV_DIR:-${ANS_DIR}/.venv}"
 ANS_INSTALL_COLL="${ANS_INSTALL_COLL:-true}"
 ANS_COLL_GIT_URL="${ANS_COLL_GIT_URL:-git+https://github.com/mark-olson/ansible-collection-daos.git,develop}"
-ANS_CREATE_INV_DIR="${ANS_CREATE_INV_DIR:-false}"
-ANS_CREATE_CFG="${ANS_CREATE_CFG:-false}"
+ANS_CREATE_INV="${ANS_CREATE_INV:-true}"
+ANS_CREATE_CFG="${ANS_CREATE_CFG:-true}"
 PKG_MGR_UPDATE="${PKG_MGR_UPDATE:-false}"
 ANSIBLE_DEPRECATION_WARNINGS=False
 
@@ -178,7 +178,7 @@ EOF
 }
 
 create_inventory() {
-  if [[ "${ANS_CREATE_INV_DIR}" == "true" ]]; then
+  if [[ "${ANS_CREATE_INV}" == "true" ]]; then
     log.info "Creating inventory in ${ANS_DIR}"
     mkdir -p "${ANS_DIR}/group_vars/all"
     mkdir -p "${ANS_DIR}/group_vars/daos_admins"
@@ -199,10 +199,13 @@ EOF
 ---
 daos_roles:
   - client
+
+reboot_disable: true
+
 EOF
     fi
-    if [[ ! -f "${ANS_DIR}/group_vars/daos_servers/daos.yml" ]]; then
-      cat > "${ANS_DIR}/group_vars/daos_servers/daos.yml" <<EOF
+    if [[ ! -f "${ANS_DIR}/group_vars/daos_servers/daos" ]]; then
+      cat > "${ANS_DIR}/group_vars/daos_servers/daos" <<EOF
 ---
 daos_roles:
   - admin

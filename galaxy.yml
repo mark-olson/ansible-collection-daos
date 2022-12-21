@@ -4,7 +4,7 @@ version: "1.0.0"
 readme: "README.md"
 authors:
   - "mark-olson"
-description: "A collection of DAOS roles and playbooks"
+description: "A collection of roles and playbooks for managing DAOS clusters."
 license:
   - "Apache-2.0"
 license_file: "LICENSE"

@@ -1,16 +1,5 @@
 ---
-# Certificate generation tasks for the daos role
-
-# - name: Create certificate generation script output dir
-#   ansible.builtin.file:
-#     path: "{{ daos_certs_gen_script_out_dir }}"
-#     state: directory
-#     mode: '0700'
-#   delegate_to: "{{ groups['daos_admins'][0] }}"
-
-- name: DEBUG show daos_roles
-  debug:
-    var: daos_roles
+# certificate generation tasks for the daos role
 
 - name: Generate self signed certificates
   ansible.builtin.command:
@@ -134,30 +123,6 @@
   delegate_to: "{{ groups['daos_admins'][0] }}"
   when: daos_role_admin in daos_roles
 
-
-# - name: Copy daosCA self signed certs [admin]
-#   ansible.builtin.copy:
-#     src: "{{ item.src }}"
-#     dest: "{{ item.dest }}"
-#     remote_src: "{{ lookup('pipe','hostname') != inventory_hostname }}"
-#   loop:
-#     - {
-#         src: "{{ daos_certs_gen_CA_dir }}/certs/daosCA.crt",
-#         dest: "{{ daos_admin_certs_dir }}/daosCA.crt"
-#       }
-#     - {
-#         src: "{{ daos_certs_gen_CA_dir }}/certs/admin.crt",
-#         dest: "{{ daos_admin_certs_dir }}/admin.crt"
-#       }
-#     - {
-#         src: "{{ daos_certs_gen_CA_dir }}/certs/admin.key",
-#         dest: "{{ daos_admin_certs_dir }}/admin.key"
-#       }
-#   loop_control:
-#     label: "{{ item.dest }}"
-#   when: (daos_role_server not in daos_roles) and (daos_role_admin in daos_roles)
-
-
 - name: Set cert permissions (DAOS server)
   ansible.builtin.file:
     path: /etc/daos/certs
@@ -175,7 +140,6 @@
     owner: "{{ daos_agent_user }}"
     group: "{{ daos_agent_user }}"
   when: daos_role_client in daos_roles
-  #) and (daos_role_admin not in daos_roles)
 
 - name: Set cert permissions (DAOS admin)
   ansible.builtin.file:
